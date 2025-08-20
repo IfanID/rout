@@ -5,13 +5,16 @@
       <span class="server-name">ROut</span>
     </div>
     <div class="navbar-right">
-      </div>
+      <md-icon-button class="profile-button">
+        <span class="material-symbols-outlined">person</span>
+      </md-icon-button>
+    </div>
   </nav>
 </template>
 
 <script>
 export default {
-  name: 'Navbar',
+  name: 'AppNavbar',
 };
 </script>
 
@@ -20,16 +23,18 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: var(--md-sys-color-surface);
+  height: 64px; /* Standard Material You app bar height */
+  padding: 0 16px; /* Standard Material You padding */
+  background-color: var(--md-sys-color-surface-container);
   color: var(--md-sys-color-on-surface);
-  border-bottom: 1px solid var(--md-sys-color-outline);
+  box-shadow: var(--md-sys-elevation-1);
+  z-index: 100;
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* Increased gap for the icon */
+  gap: 12px; /* Standard Material You spacing */
 }
 
 .navbar-icon {
@@ -38,14 +43,27 @@ export default {
 }
 
 .server-name {
-  font-size: 1.1rem; /* Slightly larger font */
+  font-family: 'Google Sans Text', sans-serif;
+  font-size: 1.25rem; /* Larger font for prominence */
   font-weight: 500;
+  letter-spacing: 0.0125em; /* Material You letter spacing */
+}
+
+.profile-button {
+  --md-sys-color-on-surface: var(--md-sys-color-on-surface);
+  background-color: var(--md-sys-color-secondary-container);
+  border-radius: 50%;
+  width: 40px; /* Adjust size to fit the icon and padding */
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Desktop Styles */
 @media (min-width: 768px) {
   .navbar {
-    padding: 0.75rem 1.5rem;
+    padding: 0 24px;
   }
 }
 </style>

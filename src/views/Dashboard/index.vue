@@ -1,62 +1,74 @@
 <template>
-  <div class="page-container">
-    <Navbar />
+  <div>
+    <AppNavbar />
     <div class="dashboard-container">
-      <main class="content-area">
-        <div class="card">
-          <h2>Selamat Datang</h2>
-          <p>Ini adalah halaman utama aplikasi Anda. Silakan jelajahi.</p>
+      <md-card class="dashboard-card">
+        <div class="card-content">
+          <h1 class="card-title">Selamat Datang di Dashboard!</h1>
+          <p class="card-text">Ini adalah halaman dashboard Anda. Di sini Anda dapat melihat ringkasan aktivitas dan informasi penting.</p>
+          <md-text-button class="card-button">Pelajari Lebih Lanjut</md-text-button>
         </div>
-      </main>
+      </md-card>
     </div>
   </div>
 </template>
 
 <script>
-import Navbar from '@/components/Navbar/index.vue';
+import AppNavbar from '@/components/Navbar/index.vue';
 
 export default {
   name: 'DashboardView',
   components: {
-    Navbar,
+    AppNavbar,
   },
 };
 </script>
 
 <style scoped>
-.page-container {
+.dashboard-container {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - var(--navbar-height, 64px)); /* Adjust based on navbar height */
+  padding: 1rem;
   background-color: var(--md-sys-color-background);
 }
 
-.dashboard-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
-  overflow-y: auto;
-}
-
-.content-area {
-  padding: 24px;
+.dashboard-card {
   width: 100%;
+  max-width: 600px;
+  padding: 1.5rem;
+  border-radius: 28px; /* Prominently rounded corners */
+  background-color: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: var(--md-sys-elevation-1); /* Material You elevation */
 }
 
-.card {
-  background-color: var(--md-sys-color-surface-variant);
-  color: var(--md-sys-color-on-surface-variant);
-  padding: 24px;
-  border-radius: 16px; /* Prominently rounded corners */
-  max-width: 800px;
-  margin: 0 auto;
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.card h2 {
-  margin-top: 0;
-  font-size: 24px;
+.card-title {
+  font-family: 'Google Sans Text', sans-serif;
+  font-size: 1.75rem;
   font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  font-family: 'Google Sans Text', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--md-sys-color-on-surface-variant);
+  margin-bottom: 1rem;
+}
+
+.card-button {
+  align-self: flex-start;
+  --md-sys-color-primary: var(--md-sys-color-primary); /* Ensure button uses primary color */
+  --md-sys-color-on-primary: var(--md-sys-color-on-primary);
 }
 </style>
