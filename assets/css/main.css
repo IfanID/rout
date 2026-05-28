@@ -1,0 +1,115 @@
+/* =========================================
+   MATERIAL YOU - CYAN PALETTE
+   Default: DARK MODE
+   ========================================= */
+
+:root {
+  /* === PRIMARY (Cyan/Teal Base) === */
+  --md-sys-color-primary: #80d4e4;
+  --md-sys-color-on-primary: #003640;
+  --md-sys-color-primary-container: #004e5a;
+  --md-sys-color-on-primary-container: #9cf1ff;
+  --md-sys-color-primary-hover: #9cf1ff; /* Tambahan untuk hover UI */
+
+  /* === SECONDARY === */
+  --md-sys-color-secondary: #b1cbd0;
+  --md-sys-color-on-secondary: #1c3438;
+  --md-sys-color-secondary-container: #334b4f;
+  --md-sys-color-on-secondary-container: #cde7ec;
+
+  /* === TERTIARY === */
+  --md-sys-color-tertiary: #bbc7e4;
+  --md-sys-color-on-tertiary: #263147;
+  --md-sys-color-tertiary-container: #3d475e;
+  --md-sys-color-on-tertiary-container: #d7e3f8;
+
+  /* === ERROR === */
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+
+  /* === SURFACE (Background Utama Gelap) === */
+  --md-sys-color-surface: #0e1415;
+  --md-sys-color-on-surface: #dee4e5;
+  --md-sys-color-surface-variant: #3f484a;
+  --md-sys-color-on-surface-variant: #bfc8ca;
+  --md-sys-color-surface-container: #1a2021; /* Background untuk Navbar/Dialog */
+
+  /* === OUTLINE === */
+  --md-sys-color-outline: #899294;
+  --md-sys-color-outline-variant: #3f484a;
+
+  /* === GLOBAL UI PROPERTIES === */
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --transition: all 0.2s ease-in-out;
+
+  /* Default root background & text */
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+body, html {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif; /* Opsional: font default */
+}
+
+
+/* =========================================
+   LIGHT MODE 
+   (Hanya aktif jika OS/Device menggunakan tema terang)
+   ========================================= */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* === PRIMARY === */
+    --md-sys-color-primary: #006978;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #9cf1ff;
+    --md-sys-color-on-primary-container: #001f24;
+    --md-sys-color-primary-hover: #005a65;
+
+    /* === SECONDARY === */
+    --md-sys-color-secondary: #4a6267;
+    --md-sys-color-on-secondary: #ffffff;
+    --md-sys-color-secondary-container: #cde7ec;
+    --md-sys-color-on-secondary-container: #051f23;
+
+    /* === TERTIARY === */
+    --md-sys-color-tertiary: #545e70;
+    --md-sys-color-on-tertiary: #ffffff;
+    --md-sys-color-tertiary-container: #d7e3f8;
+    --md-sys-color-on-tertiary-container: #111b2c;
+
+    /* === ERROR === */
+    --md-sys-color-error: #ba1a1a;
+    --md-sys-color-on-error: #ffffff;
+    --md-sys-color-error-container: #ffdad6;
+    --md-sys-color-on-error-container: #410002;
+
+    /* === SURFACE === */
+    --md-sys-color-surface: #f4fafb;
+    --md-sys-color-on-surface: #161d1e;
+    --md-sys-color-surface-variant: #dbe4e6;
+    --md-sys-color-on-surface-variant: #3f484a;
+    --md-sys-color-surface-container: #eef4f5;
+
+    /* === OUTLINE === */
+    --md-sys-color-outline: #6f797b;
+    --md-sys-color-outline-variant: #bfc8ca;
+
+    /* === GLOBAL UI PROPERTIES === */
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+    /* Override root background & text for light mode */
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+  }
+
+  body, html {
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+  }
+}
