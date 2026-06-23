@@ -1,67 +1,32 @@
-<script setup>
-import OwnerButton from './owner/ownerButton.vue'
-
-const route = useRoute()
-const isProfilePage = computed(() => route.path === '/profile')
-
-// Ambil data dari Settings
-const centerMenu = useState('navCenterMenu', () => 'running-man')
-
-// Konfigurasi tombol tengah (Link & Ikon)
-const centerConfig = computed(() => {
-  if (centerMenu.value === 'finance') {
-    return {
-      to: '/finance',
-      icon: 'material-symbols:finance-mode-rounded',
-      title: 'Finance'
-    }
-  }
-  return {
-    to: '/running-man',
-    icon: 'material-symbols:directions-run',
-    title: 'Running Man'
-  }
-})
-</script>
-
 <template>
   <nav class="navbar-wrapper">
-    <OwnerButton
-      v-if="isProfilePage"
-      class="floating-owner-btn"
-    />
-
     <div class="navbar">
-      <NuxtLink to="/" class="nav-link" title="Home">
-        <Icon name="material-symbols:home-rounded" size="24" />
-        <span class="nav-label">Home</span>
+            <!-- Menu 1: Beranda Finance -->
+      <NuxtLink to="/finance" class="nav-link" title="Beranda">
+        <Icon name="material-symbols:monitoring-rounded" size="24" />
+        <span class="nav-label">Beranda</span>
       </NuxtLink>
 
-      <NuxtLink to="/search" class="nav-link" title="Search">
-        <Icon name="material-symbols:search-rounded" size="24" />
-        <span class="nav-label">Search</span>
+      <!-- Menu 2: Transaksi -->
+      <NuxtLink to="/finance/transactions" class="nav-link" title="Transaksi">
+        <Icon name="material-symbols:receipt-long-rounded" size="24" />
+        <span class="nav-label">Transaksi</span>
       </NuxtLink>
 
-      <!-- Center Floating Button (DINAMIS) -->
+      <!-- Center Floating Button (HALAMAN ANALYTICS) -->
       <div class="center-menu-container">
-        <NuxtLink
-          :to="centerConfig.to"
-          class="center-btn"
-          :title="centerConfig.title"
-        >
-          <Icon
-            :name="centerConfig.icon"
-            size="32"
-          />
-        </NuxtLink>
+        <NuxtLink to="/finance/analytics" class="center-btn" title="Analytics">
+          <Icon name="material-symbols:donut-large-rounded" size="32"/> </NuxtLink>
       </div>
 
-      <NuxtLink to="/settings" class="nav-link" title="Settings">
-        <Icon name="material-symbols:settings-rounded" size="24" />
-        <span class="nav-label">Settings</span>
+      <!-- Menu 3: Dompet -->
+      <NuxtLink to="/finance/wallets" class="nav-link" title="Dompet">
+        <Icon name="material-symbols:payments-rounded" size="24" />
+        <span class="nav-label">Dompet</span>
       </NuxtLink>
 
-      <NuxtLink to="/profile" class="nav-link" title="Profile">
+      <!-- Menu 4: Profile -->
+      <NuxtLink to="/finance/profile" class="nav-link" title="Profile">
         <Icon name="material-symbols:person-rounded" size="24" />
         <span class="nav-label">Profile</span>
       </NuxtLink>
@@ -76,14 +41,6 @@ const centerConfig = computed(() => {
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-}
-
-/* Floating owner button */
-.floating-owner-btn {
-  position: absolute;
-  top: -60px;
-  right: 29px;
-  z-index: 200;
 }
 
 .navbar {
@@ -111,8 +68,8 @@ const centerConfig = computed(() => {
   align-items: center;
   gap: 4px;
 
-  flex: 1; /* TAMBAHKAN INI */
-  text-align: center; /* TAMBAHKAN INI */
+  flex: 1; /* TAMBAHKAN INI agar semua menu punya lebar sama */
+  text-align: center; /* TAMBAHKAN INI agar teks rapi di tengah */
 
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
@@ -188,11 +145,6 @@ const centerConfig = computed(() => {
     padding: 6px 12px;
 
     border-radius: 16px;
-  }
-
-  .floating-owner-btn {
-    top: -54px;
-    right: 20px;
   }
 
   .center-btn {
