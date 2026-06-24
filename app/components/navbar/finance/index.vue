@@ -1,31 +1,77 @@
+<script setup>
+import { ref } from 'vue'
+
+const centerMenu = useState('navFinanceCenter', () => 'analytics')
+const showQuickAddMenu = ref(false)
+
+const centerConfig = computed(() => {
+  if (centerMenu.value === 'debt') {
+    return { to: '/finance/debt', icon: 'mdi:hand-coin-outline', title: 'Debt', isAction: false }
+  }
+  if (centerMenu.value === 'pencatat') {
+    return { to: '#', icon: 'mdi:plus', title: 'Pencatat', isAction: true }
+  }
+  return { to: '/finance/analytics', icon: 'material-symbols:donut-large-rounded', title: 'Analytics', isAction: false }
+})
+
+const handleCenterClick = () => {
+  if (centerConfig.value.isAction) {
+    showQuickAddMenu.value = !showQuickAddMenu.value
+  }
+}
+
+const closeQuickAddMenu = () => {
+  showQuickAddMenu.value = false
+}
+</script>
+
 <template>
   <nav class="navbar-wrapper">
+    
+    <!-- Panggil Komponen Pop-up Pencatat -->
+    <QuickAddMenu 
+      v-if="showQuickAddMenu && centerConfig.isAction" 
+      @close="closeQuickAddMenu" 
+    />
+
+    <!-- Navbar Utama -->
     <div class="navbar">
-            <!-- Menu 1: Beranda Finance -->
       <NuxtLink to="/finance" class="nav-link" title="Beranda">
         <Icon name="material-symbols:monitoring-rounded" size="24" />
         <span class="nav-label">Beranda</span>
       </NuxtLink>
 
-      <!-- Menu 2: Transaksi -->
       <NuxtLink to="/finance/transactions" class="nav-link" title="Transaksi">
         <Icon name="material-symbols:receipt-long-rounded" size="24" />
         <span class="nav-label">Transaksi</span>
       </NuxtLink>
 
-      <!-- Center Floating Button (HALAMAN ANALYTICS) -->
+      <!-- Center Floating Button -->
       <div class="center-menu-container">
-        <NuxtLink to="/finance/analytics" class="center-btn" title="Analytics">
-          <Icon name="material-symbols:donut-large-rounded" size="32"/> </NuxtLink>
+        <NuxtLink 
+          v-if="!centerConfig.isAction" 
+          :to="centerConfig.to" 
+          class="center-btn" 
+          :title="centerConfig.title"
+        >
+          <Icon :name="centerConfig.icon" size="32" />
+        </NuxtLink>
+
+        <button 
+          v-else 
+          class="center-btn" 
+          :title="centerConfig.title" 
+          @click="handleCenterClick"
+        >
+          <Icon :name="centerConfig.icon" size="32" />
+        </button>
       </div>
 
-      <!-- Menu 3: Dompet -->
       <NuxtLink to="/finance/wallets" class="nav-link" title="Dompet">
         <Icon name="material-symbols:payments-rounded" size="24" />
         <span class="nav-label">Dompet</span>
       </NuxtLink>
 
-      <!-- Menu 4: Profile -->
       <NuxtLink to="/finance/profile" class="nav-link" title="Profile">
         <Icon name="material-symbols:person-rounded" size="24" />
         <span class="nav-label">Profile</span>
@@ -68,8 +114,8 @@
   align-items: center;
   gap: 4px;
 
-  flex: 1; /* TAMBAHKAN INI agar semua menu punya lebar sama */
-  text-align: center; /* TAMBAHKAN INI agar teks rapi di tengah */
+  flex: 1;
+  text-align: center;
 
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
@@ -95,8 +141,13 @@
 }
 
 .center-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  padding: 0;
+  
   position: relative;
-  z-index: 1000;
+  z-index: 1002;
 
   display: flex;
   align-items: center;
@@ -104,7 +155,6 @@
 
   width: 64px;
   height: 64px;
-
   margin-top: -30px;
 
   background-color: var(--md-sys-color-primary);
@@ -122,6 +172,7 @@
   transition: var(--transition);
 
   -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
 .center-btn:hover {
@@ -130,52 +181,18 @@
 }
 
 /* ===== RESPONSIVE ===== */
-
 @media (max-width: 480px) {
-  .navbar-wrapper {
-    bottom: 16px;
-  }
-
-  .navbar {
-    width: calc(100vw - 32px);
-    min-width: 0;
-
-    height: 64px;
-
-    padding: 6px 12px;
-
-    border-radius: 16px;
-  }
-
-  .center-btn {
-    width: 52px;
-    height: 52px;
-
-    margin-top: -24px;
-
-    font-size: 1rem;
-  }
-
-  .center-btn .icon {
-    width: 26px;
-    height: 26px;
-  }
-
-  .nav-label {
-    font-size: 0.6rem;
-  }
+  .navbar-wrapper { bottom: 16px; }
+  .navbar { width: calc(100vw - 32px); min-width: 0; height: 64px; padding: 6px 12px; border-radius: 16px; }
+  .center-btn { width: 52px; height: 52px; margin-top: -24px; font-size: 1rem; }
+  .nav-label { font-size: 0.6rem; }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
-  .navbar {
-    width: 440px;
-    height: 70px;
-  }
+  .navbar { width: 440px; height: 70px; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .navbar {
-    width: 500px;
-  }
+  .navbar { width: 500px; }
 }
 </style>

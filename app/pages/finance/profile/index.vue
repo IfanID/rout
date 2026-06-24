@@ -1,13 +1,29 @@
 <script setup>
 import { ref } from 'vue'
 
-// State untuk menampilkan/menyembunyikan dialog
 const showLogoutDialog = ref(false)
-
-// Fungsi saat tombol "Ya" diklik di dialog
 const confirmLogout = () => {
-  showLogoutDialog.value = false // Tutup dialog
-  navigateTo('/') // Pindah ke halaman utama
+  showLogoutDialog.value = false
+  navigateTo('/')
+}
+
+// State untuk Dropdown Tombol Pusat
+const selectedMenu = useState('navFinanceCenter', () => 'analytics')
+const isDropdownOpen = ref(false)
+
+const menuOptions = [
+  { value: 'analytics', label: 'Analytics' },
+  { value: 'debt', label: 'Debt' },
+  { value: 'pencatat', label: 'Pencatat' }
+]
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value
+}
+
+const selectOption = (value) => {
+  selectedMenu.value = value
+  isDropdownOpen.value = false
 }
 </script>
 
@@ -18,7 +34,6 @@ const confirmLogout = () => {
     <div class="page-header">
       <h1 class="page-title">Profile Finance</h1>
       
-      <!-- Tombol ini hanya memunculkan dialog, tidak langsung pindah halaman -->
       <button class="logout-icon-wrapper" title="Keluar" @click="showLogoutDialog = true">
         <Icon name="material-symbols:logout-rounded" size="24" class="logout-icon" />
       </button>
@@ -31,11 +46,49 @@ const confirmLogout = () => {
       <p>guest@finance.com</p>
     </div>
 
-    <!-- Menu Pengaturan Finance -->
+    <!-- Section: Tampilan (Dropdown) -->
+    <div class="menu-section">
+      <h2 class="section-title">Tampilan</h2>
+      <div class="menu-card">
+        <div class="menu-item dropdown-item">
+          <Icon name="material-symbols:shortcuts-rounded" size="24" class="menu-icon" />
+          <div class="menu-text">
+            <span class="menu-label">Tombol Pusat</span>
+            <span class="menu-desc">Ubah menu di tombol tengah</span>
+          </div>
+          
+          <div class="custom-dropdown">
+            <button class="dropdown-trigger" @click="toggleDropdown">
+              <span>{{ menuOptions.find(opt => opt.value === selectedMenu)?.label }}</span>
+              <Icon 
+                name="material-symbols:arrow-drop-down-rounded" 
+                size="20" 
+                class="dropdown-arrow"
+                :class="{ 'rotate': isDropdownOpen }"
+              />
+            </button>
+
+            <div v-if="isDropdownOpen" class="dropdown-list">
+              <div 
+                v-for="option in menuOptions" 
+                :key="option.value"
+                class="dropdown-option"
+                :class="{ 'active': selectedMenu === option.value }"
+                @click="selectOption(option.value)"
+              >
+                {{ option.label }}
+                <Icon v-if="selectedMenu === option.value" name="material-symbols:check-rounded" size="18" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Menu Lainnya -->
     <div class="menu-section">
       <h2 class="section-title">Menu</h2>
       <div class="menu-card">
-        <!-- Menu Pengaturan Akun -->
         <div class="menu-item">
           <Icon name="material-symbols:settings-rounded" size="24" class="menu-icon" />
           <div class="menu-text">
@@ -47,12 +100,15 @@ const confirmLogout = () => {
       </div>
     </div>
 
-    <!-- PANGGIL KOMPONEN DIALOG REUSABLE DI SINI -->
+    <!-- Overlay untuk menutup dropdown jika klik area lain -->
+    <div v-if="isDropdownOpen" class="dropdown-overlay" @click="isDropdownOpen = false"></div>
+
+    <!-- KOMPONEN DIALOG KELUAR -->
     <ConfirmDialog 
       v-if="showLogoutDialog"
       title="Keluar dari Finance?"
       message="Anda akan diarahkan kembali ke halaman utama."
-      confirmText="Iya"
+      confirmText="Ya, Keluar"
       cancelText="Batal"
       @confirm="confirmLogout"
       @cancel="showLogoutDialog = false"
@@ -62,12 +118,13 @@ const confirmLogout = () => {
 </template>
 
 <style scoped>
-/* === STYLE HALAMAN PROFILE === */
 .finance-profile-page {
   padding: 40px 20px;
   color: var(--md-sys-color-on-surface);
+  position: relative;
 }
 
+/* === STYLE HEADER & TOMBOL KELUAR === */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -102,6 +159,7 @@ const confirmLogout = () => {
   color: var(--md-sys-color-error);
 }
 
+/* === STYLE KARTU PROFILE === */
 .profile-card {
   background-color: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
@@ -127,6 +185,7 @@ const confirmLogout = () => {
   font-size: 0.9rem;
 }
 
+/* === STYLE MENU === */
 .menu-section {
   margin-bottom: 28px;
 }
@@ -144,7 +203,7 @@ const confirmLogout = () => {
   background-color: var(--md-sys-color-surface-container);
   border-radius: 16px;
   border: 1px solid var(--md-sys-color-outline-variant);
-  overflow: hidden;
+  /* overflow: hidden; DIHAPUS agar dropdown bisa keluar dari kotak */
 }
 
 .menu-item {
@@ -155,6 +214,17 @@ const confirmLogout = () => {
   color: inherit;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+/* Tambahan agar sudut tetap rapi saat hover karena overflow dihilangkan */
+.menu-item:first-child {
+  border-radius: 16px 16px 0 0;
+}
+.menu-item:last-child {
+  border-radius: 0 0 16px 16px;
+}
+.menu-item:only-child {
+  border-radius: 16px;
 }
 
 .menu-item:hover {
@@ -171,6 +241,7 @@ const confirmLogout = () => {
   flex-direction: column;
   flex: 1;
   gap: 2px;
+  margin-right: 16px;
 }
 
 .menu-label {
@@ -188,43 +259,118 @@ const confirmLogout = () => {
   color: var(--md-sys-color-on-surface-variant);
 }
 
+/* === STYLE CUSTOM DROPDOWN === */
+.dropdown-item {
+  cursor: default;
+}
+
+.custom-dropdown {
+  position: relative;
+  z-index: 20;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 140px;
+  gap: 4px;
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.dropdown-trigger:hover {
+  border-color: var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-secondary-container);
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+}
+.dropdown-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.dropdown-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 180px;
+  background-color: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface);
+  transition: background-color 0.2s;
+}
+
+.dropdown-option:hover {
+  background-color: var(--md-sys-color-surface-variant);
+}
+
+.dropdown-option.active {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+  background-color: var(--md-sys-color-primary-container);
+}
+
+.dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background-color: transparent;
+}
 
 /* =========================================
-   STYLE DIALOG DARI HALAMAN INI (DROPDOWN STYLE)
+   STYLE DIALOG DARI HALAMAN INI
    ========================================= */
-
-/* Background gelap transparan (TANPA BLUR) */
 :deep(.dialog-overlay) {
-  position: fixed; /* WAJIB ADA INI agar melayang */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   background-color: rgba(0,0, 0, 0.5);
   z-index: 9999;
-  
-  /* Posisi kanan atas */
   display: flex;
   align-items: flex-start; 
   justify-content: flex-end;
-  
-  /* Atur jarak: 90px dari atas, 40px dari kanan, 20px dari bawah/kiri */
   padding: 90px 40px 20px 20px; 
   animation: fadeIn 0.2s ease;
 }
 
-/* Kotak Dialog */
 :deep(.dialog-box) {
   background-color: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 20px;
   padding: 20px;
-  width: 100%;
   margin-right: 35px;
+  width: 100%;
   max-width: 300px;
   box-shadow: var(--shadow-lg);
   animation: slideDown 0.2s ease;
-  /* Hapus margin-right jika sebelumnya ditambahkan, biarkan padding di overlay yang mengatur */
 }
 
 :deep(.dialog-title) {
@@ -278,13 +424,11 @@ const confirmLogout = () => {
   opacity: 0.9;
 }
 
-/* Animasi */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Jarak turun lebih kecil agar terasa seperti dropdown */
 @keyframes slideDown {
   from { transform: translateY(-15px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
