@@ -1,17 +1,19 @@
 <script setup>
 import { ref } from 'vue'
 
+const { t } = useI18n()
+
 const centerMenu = useState('navFinanceCenter', () => 'analytics')
 const showQuickAddMenu = ref(false)
 
 const centerConfig = computed(() => {
   if (centerMenu.value === 'debt') {
-    return { to: '/finance/debt', icon: 'mdi:hand-coin-outline', title: 'Debt', isAction: false }
+    return { to: '/finance/debt', icon: 'mdi:hand-coin-outline', title: t('components.navbar.debt'), isAction: false }
   }
   if (centerMenu.value === 'pencatat') {
-    return { to: '#', icon: 'mdi:plus', title: 'Pencatat', isAction: true }
+    return { to: '#', icon: 'mdi:plus', title: t('components.centerMenu.pencatat'), isAction: true }
   }
-  return { to: '/finance/analytics', icon: 'material-symbols:donut-large-rounded', title: 'Analytics', isAction: false }
+  return { to: '/finance/analytics', icon: 'material-symbols:donut-large-rounded', title: t('components.navbar.analytics'), isAction: false }
 })
 
 const handleCenterClick = () => {
@@ -28,53 +30,58 @@ const closeQuickAddMenu = () => {
 <template>
   <nav class="navbar-wrapper">
     
-    <!-- Panggil Komponen Pop-up Pencatat -->
     <QuickAddMenu 
       v-if="showQuickAddMenu && centerConfig.isAction" 
       @close="closeQuickAddMenu" 
     />
 
-    <!-- Navbar Utama -->
     <div class="navbar">
-      <NuxtLink to="/finance" class="nav-link" title="Beranda">
+      <NuxtLink to="/finance" class="nav-link" :title="t('components.navbar.home')">
         <Icon name="material-symbols:monitoring-rounded" size="24" />
-        <span class="nav-label">Beranda</span>
+        <span class="nav-label">{{ t('components.navbar.home') }}</span>
       </NuxtLink>
 
-      <NuxtLink to="/finance/transactions" class="nav-link" title="Transaksi">
+      <NuxtLink to="/finance/transactions" class="nav-link" :title="t('components.navbar.transactions')">
         <Icon name="material-symbols:receipt-long-rounded" size="24" />
-        <span class="nav-label">Transaksi</span>
+        <span class="nav-label">{{ t('components.navbar.transactions') }}</span>
       </NuxtLink>
 
       <!-- Center Floating Button -->
       <div class="center-menu-container">
-        <NuxtLink 
-          v-if="!centerConfig.isAction" 
-          :to="centerConfig.to" 
-          class="center-btn" 
-          :title="centerConfig.title"
-        >
-          <Icon :name="centerConfig.icon" size="32" />
-        </NuxtLink>
+        <ClientOnly>
+          <NuxtLink 
+            v-if="!centerConfig.isAction" 
+            :to="centerConfig.to" 
+            class="center-btn" 
+            :title="centerConfig.title"
+          >
+            <Icon :name="centerConfig.icon" size="32" />
+          </NuxtLink>
 
-        <button 
-          v-else 
-          class="center-btn" 
-          :title="centerConfig.title" 
-          @click="handleCenterClick"
-        >
-          <Icon :name="centerConfig.icon" size="32" />
-        </button>
+          <button 
+            v-else 
+            class="center-btn" 
+            :title="centerConfig.title" 
+            @click="handleCenterClick"
+          >
+            <Icon :name="centerConfig.icon" size="32" />
+          </button>
+
+          <!-- PANGGIL KOMPONEN SKELETON -->
+          <template #fallback>
+            <SkeletonNavbarCenterButton />
+          </template>
+        </ClientOnly>
       </div>
 
-      <NuxtLink to="/finance/wallets" class="nav-link" title="Dompet">
+      <NuxtLink to="/finance/wallets" class="nav-link" :title="t('components.navbar.wallets')">
         <Icon name="material-symbols:payments-rounded" size="24" />
-        <span class="nav-label">Dompet</span>
+        <span class="nav-label">{{ t('components.navbar.wallets') }}</span>
       </NuxtLink>
 
-      <NuxtLink to="/finance/profile" class="nav-link" title="Profile">
+      <NuxtLink to="/finance/profile" class="nav-link" :title="t('components.navbar.profile')">
         <Icon name="material-symbols:person-rounded" size="24" />
-        <span class="nav-label">Profile</span>
+        <span class="nav-label">{{ t('components.navbar.profile') }}</span>
       </NuxtLink>
     </div>
   </nav>
@@ -93,17 +100,12 @@ const closeQuickAddMenu = () => {
   display: flex;
   align-items: center;
   justify-content: space-around;
-
   width: 380px;
   height: 75px;
-
   padding: 8px 16px;
-
   background-color: var(--md-sys-color-surface-container);
-
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 20px;
-
   box-shadow: var(--shadow-lg);
   backdrop-filter: blur(20px);
 }
@@ -113,16 +115,12 @@ const closeQuickAddMenu = () => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-
   flex: 1;
   text-align: center;
-
   color: var(--md-sys-color-on-surface-variant);
   text-decoration: none;
   font-weight: 500;
-
   transition: var(--transition);
-
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -134,7 +132,6 @@ const closeQuickAddMenu = () => {
   font-size: 0.7rem;
 }
 
-/* Center floating menu */
 .center-menu-container {
   position: relative;
   margin: 0 10px;
@@ -145,32 +142,23 @@ const closeQuickAddMenu = () => {
   appearance: none;
   box-sizing: border-box;
   padding: 0;
-  
   position: relative;
   z-index: 1002;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 64px;
   height: 64px;
   margin-top: -30px;
-
   background-color: var(--md-sys-color-primary);
   color: var(--md-sys-color-on-primary);
-
   border-radius: 50%;
   border: 6px solid var(--md-sys-color-surface-container);
-
   text-decoration: none;
   font-size: 1.2rem;
   font-weight: 800;
-
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-
   transition: var(--transition);
-
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
 }
@@ -186,6 +174,7 @@ const closeQuickAddMenu = () => {
   .navbar { width: calc(100vw - 32px); min-width: 0; height: 64px; padding: 6px 12px; border-radius: 16px; }
   .center-btn { width: 52px; height: 52px; margin-top: -24px; font-size: 1rem; }
   .nav-label { font-size: 0.6rem; }
+  .skeleton-letter { font-size: 1rem; }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {

@@ -1,0 +1,121 @@
+{
+  "components": {
+    "navbar": {
+      "home": "Beranda",
+      "search": "Cari",
+      "settings": "Pengaturan",
+      "profile": "Profil",
+      "finance": "Finance",
+      "runningMan": "Running Man",
+      "transactions": "Transaksi",
+      "wallets": "Dompet",
+      "analytics": "Analitik"
+    },
+    "quickAddMenu": {
+      "title": "Buat Transaksi Baru",
+      "income": "Uang Masuk",
+      "expense": "Pengeluaran",
+      "transfer": "Transfer",
+      "debt": "Catat Pinjaman",
+      "form": {
+        "income_title": "Catat Uang Masuk",
+        "expense_title": "Catat Pengeluaran",
+        "transfer_title": "Catat Transfer",
+        "debt_title": "Catat Pinjaman",
+        "nominal": "Nominal",
+        "description": "Keterangan",
+        "description_placeholder": "Contoh: Gaji bulanan, Belanja bulanan",
+        "submit": "Simpan Transaksi",
+        "empty_nominal": "Nominal tidak boleh kosong!"
+      }
+    },
+    "centerMenu": {
+      "running_man": "Running Man",
+      "finance": "Finance",
+      "analytics": "Analytics",
+      "debt": "Debt",
+      "pencatat": "Pencatat"
+    }
+  },
+  "pages": {
+    "index": {
+      "welcome_back": "Selamat datang kembali,",
+      "greeting": "Have a productive day 🚀"
+    },
+    "search": {},
+    "runningMan": {},
+    "owner": {
+      "title": "Owner Panel",
+      "card_title": "Akses Terbatas",
+      "card_desc": "Area ini khusus untuk pemilik aplikasi."
+    },
+    "profile": {
+      "title": "Profil Pengguna",
+      "info": "Halaman ini adalah area personal pengguna. Tombol Owner (kunci) hanya akan muncul di navbar saat kamu berada di halaman ini."
+    },
+    "settings": {
+      "title": "Pengaturan",
+      "account": "Akun",
+      "edit_profile": "Edit Profil",
+      "edit_profile_desc": "Ubah nama, email, dan foto",
+      "security": "Keamanan",
+      "security_desc": "Password dan verifikasi 2 langkah",
+      "appearance": "Tampilan",
+      "center_button": "Tombol Pusat",
+      "center_button_desc": "Ubah menu di tombol tengah",
+      "language": "Bahasa",
+      "others": "Lainnya",
+      "about": "Tentang Aplikasi",
+      "about_version": "Versi 1.0.0",
+      "theme_dark": "Mode Gelap",
+      "theme_light": "Mode Terang"
+    },
+    "finance": {
+      "index": {
+        "title": "Finance Dashboard",
+        "desc": "Halaman ini muncul karena kamu memilih menu Finance di Settings."
+      },
+      "analytics": {},
+      "transactions": {},
+      "debt": {},
+      "wallets": {
+        "title": "Dompet",
+        "add": "Tambah Dompet",
+        "balance": "Saldo",
+        "default_name": "Dompet Utama",
+        "menu": {
+          "rename": "Ubah Nama",
+          "set_default": "Jadikan Default",
+          "delete": "Hapus"
+        },
+        "dialog": {
+          "add_title": "Tambah Dompet Baru",
+          "rename_title": "Ubah Nama Dompet",
+          "name_placeholder": "Masukkan nama dompet",
+          "cancel": "Batal",
+          "save": "Simpan",
+          "delete_title": "Hapus Dompet?",
+          "delete_message": "Apakah Anda yakin ingin menghapus dompet ini? Semua riwayat transaksi terkait mungkin terpengaruh.",
+          "delete_confirm": "Ya, Hapus",
+          "cannot_delete_default": "Dompet default tidak bisa dihapus!"
+        }
+      },
+      "profile": {
+        "title": "Profile Finance",
+        "logout": "Keluar",
+        "appearance": "Tampilan",
+        "center_button": "Tombol Pusat",
+        "center_button_desc": "Ubah menu di tombol tengah",
+        "menu": "Menu",
+        "account_settings": "Pengaturan Akun",
+        "account_settings_desc": "Ubah keamanan dan profil",
+        "logout_dialog": {
+          "title": "Keluar dari Finance?",
+          "message": "Anda akan diarahkan kembali ke halaman utama.",
+          "confirm": "Ya, Keluar",
+          "cancel": "Batal"
+        }
+      }
+    }
+  }
+}
