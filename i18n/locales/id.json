@@ -31,15 +31,16 @@
     },
     "centerMenu": {
       "running_man": "Running Man",
-      "finance": "Finance",
-      "analytics": "Analytics",
-      "debt": "Debt",
+      "finance": "Keuangan",
+      "analytics": "Analitik",
+      "debt": "Hutang",
       "pencatat": "Pencatat"
     }
   },
   "pages": {
     "index": {
       "welcome_back": "Selamat datang kembali,",
+      "guest": "Tamu",
       "greeting": "Have a productive day 🚀"
     },
     "search": {},
@@ -51,6 +52,8 @@
     },
     "profile": {
       "title": "Profil Pengguna",
+      "guest": "Tamu",
+      "email": "guest{'@'}email.com",
       "info": "Halaman ini adalah area personal pengguna. Tombol Owner (kunci) hanya akan muncul di navbar saat kamu berada di halaman ini."
     },
     "settings": {
@@ -75,7 +78,15 @@
         "title": "Finance Dashboard",
         "desc": "Halaman ini muncul karena kamu memilih menu Finance di Settings."
       },
-      "analytics": {},
+      "analytics": {
+        "greeting": "Selamat Pagi 👋",
+        "total_saldo": "Total Saldo",
+        "income": "Pemasukan",
+        "expense": "Pengeluaran",
+        "vs": "VS",
+        "show": "Tampilkan saldo",
+        "hide": "Sembunyikan saldo"
+      },
       "transactions": {},
       "debt": {},
       "wallets": {

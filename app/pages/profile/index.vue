@@ -1,15 +1,19 @@
+<script setup>
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="page-container">
-    <h1>Profil Pengguna</h1>
+    <h1>{{ t('pages.profile.title') }}</h1>
     
     <div class="profile-card">
       <Icon name="material-symbols:person-rounded" size="64" class="profile-icon" />
-      <h2>Guest</h2>
-      <p class="email">guest@email.com</p>
+      <h2>{{ t('pages.profile.guest') }}</h2>
+      <p class="email">{{ t('pages.profile.email') }}</p>
     </div>
 
     <div class="info-text">
-      <p>Halaman ini adalah area personal pengguna. Tombol Owner (kunci) hanya akan muncul di navbar saat kamu berada di halaman ini.</p>
+      <p>{{ t('pages.profile.info') }}</p>
     </div>
   </div>
 </template>

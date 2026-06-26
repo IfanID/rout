@@ -1,17 +1,28 @@
 export default defineNuxtPlugin(() => {
-  // Daftar semua key yang ingin disimpan di localStorage
+  // Daftar semua key yang ingin disinkronkan dengan localStorage
   const keysToSync = ['navCenterMenu', 'navFinanceCenter']
 
   keysToSync.forEach(key => {
+    // 1. BACA: Timpa nilai default SSR dengan data localStorage (CEGAH FOUC)
     try {
       const savedData = localStorage.getItem(key)
       if (savedData !== null) {
-        // Langsung timpa nilai default dari SSR dengan data localStorage
-        // Ini terjadi SEBELUM komponen Vue ditampilkan ke layar
         useState(key).value = savedData
       }
     } catch (error) {
       console.warn(`Gagal membaca ${key} dari localStorage:`, error)
     }
+
+    // 2. TULIS: Setiap perubahan useState → otomatis simpan ke localStorage
+    watch(
+      () => useState(key).value,
+      (newValue) => {
+        try {
+          localStorage.setItem(key, String(newValue))
+        } catch (error) {
+          console.warn(`Gagal menyimpan ${key} ke localStorage:`, error)
+        }
+      }
+    )
   })
 })

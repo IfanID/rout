@@ -1,17 +1,28 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 
-const { t } = useI18n()
+const { t, locale, locales, setLocale } = useI18n()
 
-// === PANGGIL COMPOSABLE BAHASA ===
+// === DROPDOWN BAHASA (langsung di komponen, bukan di composable) ===
 const {
   isLangDropdownOpen,
-  availableLocales,
-  currentLocaleName,
   toggleLangDropdown,
-  changeLanguage,
   closeLangDropdown
 } = useLanguage()
+
+const availableLocales = computed(() => {
+  return locales.value.map(l => (typeof l === 'object' ? l : { code: l, name: l }))
+})
+
+const currentLocaleName = computed(() => {
+  const active = availableLocales.value.find(l => l.code === locale.value)
+  return active ? active.name : 'Unknown'
+})
+
+const changeLanguage = (code) => {
+  setLocale(code)
+  isLangDropdownOpen.value = false
+}
 
 // === COLOR MODE TOGGLE ===
 const colorMode = useColorMode()
@@ -44,6 +55,34 @@ const selectOption = (value) => {
   selectedMenu.value = value
   isDropdownOpen.value = false
 }
+
+// === DETEKSI DROPDOWN KELUAR VIEWPORT ===
+const dropdownListRef = ref(null)
+const langDropdownListRef = ref(null)
+const isDropdownAbove = ref(false)
+const isLangDropdownAbove = ref(false)
+
+const checkOverflowBottom = (el) => {
+  if (!el) return false
+  const rect = el.getBoundingClientRect()
+  return rect.bottom > window.innerHeight - 8
+}
+
+watch(isDropdownOpen, (val) => {
+  if (val) {
+    nextTick(() => {
+      isDropdownAbove.value = checkOverflowBottom(dropdownListRef.value)
+    })
+  }
+})
+
+watch(isLangDropdownOpen, (val) => {
+  if (val) {
+    nextTick(() => {
+      isLangDropdownAbove.value = checkOverflowBottom(langDropdownListRef.value)
+    })
+  }
+})
 
 // === TUTUP SEMUA DROPDOWN SAAT KLIK OVERLAY ===
 const closeAllDropdowns = () => {
@@ -105,7 +144,6 @@ const closeAllDropdowns = () => {
           
           <div class="custom-dropdown">
             <button class="dropdown-trigger" @click="toggleDropdown">
-              <!-- GUNAKAN KOMPONEN SKELETON -->
               <ClientOnly>
                 <span>{{ menuOptions.find(opt => opt.value === selectedMenu)?.label }}</span>
                 <template #fallback>
@@ -114,7 +152,12 @@ const closeAllDropdowns = () => {
               </ClientOnly>
               <Icon name="material-symbols:arrow-drop-down-rounded" size="20" class="dropdown-arrow" :class="{ 'rotate': isDropdownOpen }" />
             </button>
-            <div v-if="isDropdownOpen" class="dropdown-list">
+            <div 
+              v-if="isDropdownOpen" 
+              ref="dropdownListRef"
+              class="dropdown-list" 
+              :class="{ 'dropdown-above': isDropdownAbove }"
+            >
               <div v-for="option in menuOptions" :key="option.value" class="dropdown-option" :class="{ 'active': selectedMenu === option.value }" @click="selectOption(option.value)">
                 {{ option.label }}
                 <Icon v-if="selectedMenu === option.value" name="material-symbols:check-rounded" size="18" />
@@ -134,7 +177,6 @@ const closeAllDropdowns = () => {
           
           <div class="custom-dropdown">
             <button class="dropdown-trigger" @click="toggleLangDropdown">
-              <!-- GUNAKAN KOMPONEN SKELETON -->
               <ClientOnly>
                 <span>{{ currentLocaleName }}</span>
                 <template #fallback>
@@ -143,7 +185,12 @@ const closeAllDropdowns = () => {
               </ClientOnly>
               <Icon name="material-symbols:arrow-drop-down-rounded" size="20" class="dropdown-arrow" :class="{ 'rotate': isLangDropdownOpen }" />
             </button>
-            <div v-if="isLangDropdownOpen" class="dropdown-list">
+            <div 
+              v-if="isLangDropdownOpen" 
+              ref="langDropdownListRef"
+              class="dropdown-list" 
+              :class="{ 'dropdown-above': isLangDropdownAbove }"
+            >
               <div v-for="loc in availableLocales" :key="loc.code" class="dropdown-option" :class="{ 'active': locale === loc.code }" @click="changeLanguage(loc.code)">
                 {{ loc.name }}
                 <Icon v-if="locale === loc.code" name="material-symbols:check-rounded" size="18" />
@@ -203,10 +250,10 @@ const closeAllDropdowns = () => {
 .dropdown-trigger:hover { border-color: var(--md-sys-color-primary); background-color: var(--md-sys-color-secondary-container); }
 .dropdown-arrow { transition: transform 0.2s ease; }
 .dropdown-arrow.rotate { transform: rotate(180deg); }
-.dropdown-list { position: absolute; top: calc(100% + 8px); right: 0; width: 180px; background-color: var(--md-sys-color-surface-container); border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; box-shadow: var(--shadow-lg); overflow: hidden; z-index: 50; }
+.dropdown-list { position: absolute; top: calc(100% + 8px); right: 0; width: 180px; background-color: var(--md-sys-color-surface-container); border: 1px solid var(--md-sys-color-outline-variant); border-radius: 12px; box-shadow: var(--shadow-lg); overflow: hidden; z-index: 50; transition: top 0.15s ease, bottom 0.15s ease; }
+.dropdown-list.dropdown-above { top: auto; bottom: calc(100% + 8px); }
 .dropdown-option { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 0.9rem; cursor: pointer; color: var(--md-sys-color-on-surface); transition: background-color 0.2s; }
 .dropdown-option:hover { background-color: var(--md-sys-color-surface-variant); }
 .dropdown-option.active { color: var(--md-sys-color-primary); font-weight: 600; background-color: var(--md-sys-color-primary-container); }
 .dropdown-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; background-color: transparent; }
-
 </style>

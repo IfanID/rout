@@ -40,6 +40,7 @@
   "pages": {
     "index": {
       "welcome_back": "다시 오신 것을 환영합니다,",
+      "guest": "게스트",
       "greeting": "생산적인 하루 되세요 🚀"
     },
     "search": {},
@@ -51,6 +52,8 @@
     },
     "profile": {
       "title": "사용자 프로필",
+      "guest": "게스트",
+      "email": "guest{'@'}email.com",
       "info": "이 페이지는 사용자의 개인 영역입니다. 소유자 버튼(열쇠)은 이 페이지에 있을 때만 내비게이션 바에 나타납니다."
     },
     "settings": {
@@ -75,7 +78,15 @@
         "title": "재무 대시보드",
         "desc": "설정에서 재무 메뉴를 선택하면 이 페이지가 나타납니다."
       },
-      "analytics": {},
+      "analytics": {
+        "greeting": "좋은 아침이에요 👋",
+        "total_saldo": "총 잔액",
+        "income": "수입",
+        "expense": "지출",
+        "vs": "VS",
+        "show": "잔액 표시",
+        "hide": "잔액 숨기기"
+      },
       "transactions": {},
       "debt": {},
       "wallets": {

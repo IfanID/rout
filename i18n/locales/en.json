@@ -40,6 +40,7 @@
   "pages": {
     "index": {
       "welcome_back": "Welcome back,",
+      "guest": "Guest",
       "greeting": "Have a productive day 🚀"
     },
     "search": {},
@@ -51,6 +52,8 @@
     },
     "profile": {
       "title": "User Profile",
+      "guest": "Guest",
+      "email": "guest{'@'}email.com",
       "info": "This is your personal user area. The Owner button (key) will only appear on the navbar when you are on this page."
     },
     "settings": {
@@ -75,7 +78,15 @@
         "title": "Finance Dashboard",
         "desc": "This page appears because you selected the Finance menu in Settings."
       },
-      "analytics": {},
+      "analytics": {
+        "greeting": "Good Morning 👋",
+        "total_saldo": "Total Balance",
+        "income": "Income",
+        "expense": "Expense",
+        "vs": "VS",
+        "show": "Show balance",
+        "hide": "Hide balance"
+      },
       "transactions": {},
       "debt": {},
       "wallets": {

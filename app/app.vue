@@ -32,3 +32,20 @@ const isFinancePage = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.main-content {
+  /* 
+    Navbar fixed di bottom: 24px, tinggi 75px (desktop) / 64px (mobile)
+    24px + 75px = 99px → dibulatkan ke 120px agar ada ruang bernapas
+  */
+  padding-bottom: 120px;
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    /* Navbar mobile: bottom 16px, tinggi 64px → 80px, padding 100px cukup */
+    padding-bottom: 100px;
+  }
+}
+</style>

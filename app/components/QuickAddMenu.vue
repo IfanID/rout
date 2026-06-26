@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 
 const { t } = useI18n()
 
@@ -36,6 +36,11 @@ const openForm = (type) => {
   activeForm.value = type
   displayAmount.value = ''
   description.value = ''
+
+  // Paksa fokus ke input nominal setelah form terrender di DOM
+  nextTick(() => {
+    amountInputRef.value?.focus()
+  })
 }
 
 const backToMenu = () => {
@@ -210,7 +215,6 @@ const submitTransaction = () => {
               <label class="input-label">{{ t('components.quickAddMenu.form.nominal') }}</label>
               <div class="amount-input-wrapper">
                 <span class="currency-prefix">Rp</span>
-                <!-- TAMBAHKAN ref="amountInputRef" DI SINI -->
                 <input 
                   ref="amountInputRef"
                   type="text" 
@@ -221,7 +225,6 @@ const submitTransaction = () => {
                   class="form-input amount-input" 
                   placeholder="0"
                   inputmode="numeric"
-                  autofocus
                 />
               </div>
             </div>

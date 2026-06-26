@@ -1,11 +1,15 @@
+<script setup>
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="page-container">
-    <h1>Owner Panel</h1>
+    <h1>{{ t('pages.owner.title') }}</h1>
     
     <div class="owner-card">
       <Icon name="material-symbols:key-rounded" size="48" class="owner-icon" />
-      <h2>Akses Terbatas</h2>
-      <p>Area ini khusus untuk pemilik aplikasi.</p>
+      <h2>{{ t('pages.owner.card_title') }}</h2>
+      <p>{{ t('pages.owner.card_desc') }}</p>
     </div>
   </div>
 </template>

@@ -1,3 +1,7 @@
+<script setup>
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="home-page">
     
@@ -6,14 +10,14 @@
       <h1 class="brand-name">ROut</h1>
 
       <p class="welcome-text">
-        Welcome back,
-        <span class="username">Guest</span>
+        {{ t('pages.index.welcome_back') }}
+        <span class="username">{{ t('pages.index.guest') }}</span>
       </p>
     </header>
 
     <!-- Greeting atas tengah -->
     <div class="greeting">
-      <p>Have a productive day 🚀</p>
+      <p>{{ t('pages.index.greeting') }}</p>
     </div>
 
   </div>
