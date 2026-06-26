@@ -3,7 +3,10 @@ import { ref, computed, nextTick, watch } from 'vue'
 
 const { t, locale, locales, setLocale } = useI18n()
 
-// === DROPDOWN BAHASA (langsung di komponen) ===
+// === VISIBILITY SALDO (GLOBAL) ===
+const isBalanceHidden = useBalanceVisibility()
+
+// === DROPDOWN BAHASA ===
 const {
   isLangDropdownOpen,
   toggleLangDropdown,
@@ -44,19 +47,12 @@ const openLogoutDialog = () => {
   if (logoutBtnRef.value) {
     const rect = logoutBtnRef.value.getBoundingClientRect()
     
-    // 1. Posisi atas: tepat 10px di bawah tombol
     let topPos = rect.bottom + 10
-    
-    // 2. Posisi kanan: geser dari kanan layar, tambah 15px ke kiri agar tidak menempel
     let rightPos = (window.innerWidth - rect.right) + 15
     
-    // 3. Pastikan tidak keluar layar kanan (minimal 16px dari tepi)
     const minRightMargin = 16
-    if (rightPos < minRightMargin) {
-      rightPos = minRightMargin
-    }
+    if (rightPos < minRightMargin) rightPos = minRightMargin
     
-    // 4. Pastikan tidak kepotong layar bawah (estimasi tinggi dialog ~200px)
     const estimatedHeight = 200
     const maxBottom = window.innerHeight - 16
     if (topPos + estimatedHeight > maxBottom) {
@@ -68,7 +64,6 @@ const openLogoutDialog = () => {
       right: `${rightPos}px`
     }
   } else {
-    // Fallback jika ref tidak tertangkap
     logoutDialogPos.value = { top: '80px', right: '20px' }
   }
 
@@ -146,7 +141,6 @@ const closeAllDropdowns = () => {
           <Icon :name="themeIcon" size="24" class="theme-icon" />
         </div>
         
-        <!-- TAMBAHKAN ref="logoutBtnRef" DI SINI -->
         <div 
           ref="logoutBtnRef" 
           class="logout-icon-wrapper" 
@@ -170,6 +164,26 @@ const closeAllDropdowns = () => {
       <h2 class="section-title">{{ t('pages.finance.profile.appearance') }}</h2>
       <div class="menu-card">
         
+        <!-- TOGGLE VISIBILITAS SALDO -->
+        <div class="menu-item" @click="isBalanceHidden = !isBalanceHidden">
+          <Icon 
+            :name="isBalanceHidden ? 'material-symbols:visibility-off' : 'material-symbols:visibility'" 
+            size="24" 
+            class="menu-icon" 
+          />
+          <div class="menu-text">
+            <span class="menu-label">{{ t('pages.finance.profile.hide_balance') }}</span>
+            <span class="menu-desc">{{ t('pages.finance.profile.hide_balance_desc') }}</span>
+          </div>
+          
+          <!-- Material You Toggle Switch -->
+          <div class="toggle-switch" :class="{ 'active': isBalanceHidden }">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+
+        <div class="menu-divider"></div>
+
         <!-- Dropdown Tombol Pusat -->
         <div class="menu-item dropdown-item" :class="{ 'z-active': isDropdownOpen }">
           <Icon name="material-symbols:dashboard-customize-rounded" size="24" class="menu-icon" />
@@ -311,4 +325,39 @@ const closeAllDropdowns = () => {
 .dropdown-option:hover { background-color: var(--md-sys-color-surface-variant); }
 .dropdown-option.active { color: var(--md-sys-color-primary); font-weight: 600; background-color: var(--md-sys-color-primary-container); }
 .dropdown-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; background-color: transparent; }
+
+/* === MATERIAL YOU TOGGLE SWITCH === */
+.toggle-switch {
+  width: 52px;
+  height: 32px;
+  background-color: transparent;
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.toggle-switch.active {
+  background-color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--md-sys-color-outline);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-switch.active .toggle-knob {
+  left: calc(100% - 24px);
+  background-color: var(--md-sys-color-on-primary);
+}
 </style>

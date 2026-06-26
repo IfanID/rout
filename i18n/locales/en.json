@@ -125,7 +125,9 @@
           "message": "You will be redirected back to the main page.",
           "confirm": "Yes, Logout",
           "cancel": "Cancel"
-        }
+        },
+        "hide_balance": "Hide Balance",
+        "hide_balance_desc": "Mask currency amounts"
       }
     }
   }

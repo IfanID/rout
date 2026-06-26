@@ -125,7 +125,9 @@
           "message": "메인 페이지로 이동합니다.",
           "confirm": "예, 로그아웃",
           "cancel": "취소"
-        }
+        },
+        "hide_balance": "잔액 숨기기",
+        "hide_balance_desc": "금액 가리기"
       }
     }
   }

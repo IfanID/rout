@@ -125,7 +125,9 @@
           "message": "Anda akan diarahkan kembali ke halaman utama.",
           "confirm": "Ya, Keluar",
           "cancel": "Batal"
-        }
+        },
+          "hide_balance": "Sembunyikan Saldo",
+          "hide_balance_desc": "Samarkan nominal uang"
       }
     }
   }

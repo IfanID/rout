@@ -11,7 +11,9 @@ const wallets = ref([
 // State untuk UI
 const showFormDialog = ref(false)
 const showDeleteDialog = ref(false)
-const isBalanceHidden = ref(false)
+
+// GANTI REF KE COMPOSABLE GLOBAL
+const isBalanceHidden = useBalanceVisibility()
 
 // State trigger untuk menutup menu di child component
 const menuCloseTrigger = ref(0)
@@ -87,15 +89,11 @@ const confirmDelete = () => {
   wallets.value = wallets.value.filter(w => w.id !== walletToDelete.value.id)
   showDeleteDialog.value = false
   walletToDelete.value = null
-  
-  // Kirim sinyal ke child untuk menutup menu
   menuCloseTrigger.value++
 }
 
 const cancelDelete = () => {
   showDeleteDialog.value = false
-  
-  // Kirim sinyal ke child untuk menutup menu juga saat batal
   menuCloseTrigger.value++
 }
 </script>
