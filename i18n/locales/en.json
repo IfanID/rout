@@ -76,9 +76,9 @@
     "finance": {
       "index": {
         "title": "Finance Dashboard",
-        "desc": "This page appears because you selected the Finance menu in Settings."
-      },
-      "analytics": {
+        "desc": "This page appears because you selected the Finance menu in Settings.",
+        "menu_title": "Menu",
+        "see_all": "See All",
         "greeting": "Good Morning 👋",
         "total_saldo": "Total Balance",
         "income": "Income",
@@ -87,6 +87,7 @@
         "show": "Show balance",
         "hide": "Hide balance"
       },
+      "analytics": {},
       "transactions": {},
       "debt": {},
       "wallets": {
@@ -120,14 +121,14 @@
         "menu": "Menu",
         "account_settings": "Account Settings",
         "account_settings_desc": "Change security and profile",
+        "hide_balance": "Hide Balance",
+        "hide_balance_desc": "Mask currency amounts",
         "logout_dialog": {
           "title": "Logout from Finance?",
           "message": "You will be redirected back to the main page.",
           "confirm": "Yes, Logout",
           "cancel": "Cancel"
-        },
-        "hide_balance": "Hide Balance",
-        "hide_balance_desc": "Mask currency amounts"
+        }
       }
     }
   }

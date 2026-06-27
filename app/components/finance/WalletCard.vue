@@ -12,7 +12,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // Trigger dari parent untuk menutup menu (hanya saat konfirmasi sukses)
+  isBalanceLoading: {
+    type: Boolean,
+    default: false
+  },
   closeTrigger: {
     type: Number,
     default: 0
@@ -31,14 +34,12 @@ const closeMenu = () => {
   isMenuOpen.value = false
 }
 
-// WATCH: Tutup menu jika parent mengirim sinyal (saat data berhasil dihapus)
 watch(() => props.closeTrigger, () => {
   if (isMenuOpen.value) {
     closeMenu()
   }
 })
 
-// Format Rupiah
 const formatRupiah = (value) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value)
 }
@@ -54,7 +55,6 @@ const getDisplayBalance = (value) => {
 <template>
   <div class="wallet-card">
     
-    <!-- Menu Titik Tiga -->
     <div class="card-menu-wrapper">
       <button class="menu-btn" @click="toggleMenu">
         <Icon name="mdi:dots-vertical" size="20" />
@@ -69,7 +69,6 @@ const getDisplayBalance = (value) => {
           <Icon name="mdi:star" size="18" />
           <span>{{ t('pages.finance.wallets.menu.set_default') }}</span>
         </div>
-        <!-- TANPA closeMenu() -- menu tetap terbuka saat ini dipilih -->
         <div v-if="!wallet.isDefault" class="dropdown-item text-danger" @click="emit('delete', wallet, $event)">
           <Icon name="mdi:trash-can-outline" size="18" />
           <span>{{ t('pages.finance.wallets.menu.delete') }}</span>
@@ -77,7 +76,6 @@ const getDisplayBalance = (value) => {
       </div>
     </div>
 
-    <!-- Detail Kartu -->
     <div class="wallet-top">
       <div class="wallet-icon-bg">
         <Icon :name="wallet.icon" size="28" class="wallet-icon" />
@@ -98,16 +96,22 @@ const getDisplayBalance = (value) => {
           <Icon :name="isBalanceHidden ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" size="20" />
         </button>
       </div>
-      <h2 class="balance-amount">{{ getDisplayBalance(wallet.balance) }}</h2>
+      
+      <h2 class="balance-amount">
+        <!-- Diubah: memanggil WalletCardSkeleton langsung -->
+        <FinanceWalletCardSkeleton 
+          v-if="isBalanceLoading" 
+          :text="isBalanceHidden ? formatRupiah(wallet.balance).replace(/[0-9]/g, 'x') : formatRupiah(wallet.balance)" 
+        />
+        <span v-else class="amount-reveal">{{ getDisplayBalance(wallet.balance) }}</span>
+      </h2>
     </div>
 
-    <!-- Overlay -->
     <div v-if="isMenuOpen" class="menu-overlay" @click="closeMenu"></div>
   </div>
 </template>
 
 <style scoped>
-/* === KARTU DOMPET === */
 .wallet-card {
   background-color: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
@@ -123,7 +127,6 @@ const getDisplayBalance = (value) => {
   transform: translateY(-2px);
 }
 
-/* === MENU DROPDOWN TITIK TIGA === */
 .card-menu-wrapper {
   position: absolute;
   top: 16px;
@@ -178,7 +181,6 @@ const getDisplayBalance = (value) => {
   color: var(--md-sys-color-error);
 }
 
-/* === OVERLAY === */
 .menu-overlay {
   position: fixed;
   top: 0;
@@ -189,7 +191,6 @@ const getDisplayBalance = (value) => {
   background-color: transparent;
 }
 
-/* === DETAIL KARTU === */
 .wallet-top {
   display: flex;
   align-items: center;
@@ -272,5 +273,14 @@ const getDisplayBalance = (value) => {
   font-weight: 800;
   color: var(--md-sys-color-primary);
   letter-spacing: -0.5px;
+}
+
+.amount-reveal {
+  animation: amountFadeIn 0.4s ease both;
+}
+
+@keyframes amountFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>

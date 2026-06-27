@@ -76,9 +76,9 @@
     "finance": {
       "index": {
         "title": "Finance Dashboard",
-        "desc": "Halaman ini muncul karena kamu memilih menu Finance di Settings."
-      },
-      "analytics": {
+        "desc": "Halaman ini muncul karena kamu memilih menu Finance di Settings.",
+        "menu_title": "Menu",
+        "see_all": "Lihat Semua",
         "greeting": "Selamat Pagi 👋",
         "total_saldo": "Total Saldo",
         "income": "Pemasukan",
@@ -87,6 +87,7 @@
         "show": "Tampilkan saldo",
         "hide": "Sembunyikan saldo"
       },
+      "analytics": {},
       "transactions": {},
       "debt": {},
       "wallets": {
@@ -120,14 +121,14 @@
         "menu": "Menu",
         "account_settings": "Pengaturan Akun",
         "account_settings_desc": "Ubah keamanan dan profil",
+        "hide_balance": "Sembunyikan Saldo",
+        "hide_balance_desc": "Samarkan nominal uang",
         "logout_dialog": {
           "title": "Keluar dari Finance?",
           "message": "Anda akan diarahkan kembali ke halaman utama.",
           "confirm": "Ya, Keluar",
           "cancel": "Batal"
-        },
-          "hide_balance": "Sembunyikan Saldo",
-          "hide_balance_desc": "Samarkan nominal uang"
+        }
       }
     }
   }

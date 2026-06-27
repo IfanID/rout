@@ -1,28 +1,26 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const { t } = useI18n()
 
-// State daftar dompet
+// === STATE LOADING SKELETON ===
+const isBalanceLoading = ref(true)
+
+// State daftar dompet (Sudah dihapus Bank BCA, sisakan default saja)
 const wallets = ref([
   { id: 1, name: t('pages.finance.wallets.default_name'), type: 'Cash', balance: 0, isDefault: true, icon: 'mdi:wallet' }
 ])
 
-// State untuk UI
 const showFormDialog = ref(false)
 const showDeleteDialog = ref(false)
 
-// GANTI REF KE COMPOSABLE GLOBAL
 const isBalanceHidden = useBalanceVisibility()
 
-// State trigger untuk menutup menu di child component
 const menuCloseTrigger = ref(0)
 
-// State data form
 const isEditing = ref(false)
 const formData = ref({ id: null, name: '' })
 
-// State data hapus & Posisi Dialog
 const walletToDelete = ref(null)
 const dialogPosition = ref({ top: '0px', right: '20px' })
 
@@ -33,14 +31,12 @@ const openAddDialog = () => {
   showFormDialog.value = true
 }
 
-// === LOGIC UBAH NAMA (RENAME) ===
 const openRenameDialog = (wallet) => {
   isEditing.value = true
   formData.value = { id: wallet.id, name: wallet.name }
   showFormDialog.value = true
 }
 
-// Simpan Form (Tambah / Rename)
 const saveWallet = () => {
   if (!formData.value.name.trim()) return
 
@@ -61,12 +57,10 @@ const saveWallet = () => {
   showFormDialog.value = false
 }
 
-// === LOGIC JADIKAN DEFAULT ===
 const setAsDefault = (id) => {
   wallets.value.forEach(w => w.isDefault = (w.id === id))
 }
 
-// === LOGIC HAPUS DOMPET ===
 const openDeleteDialog = (wallet, event) => {
   if (wallet.isDefault) {
     alert(t('pages.finance.wallets.dialog.cannot_delete_default'))
@@ -96,6 +90,13 @@ const cancelDelete = () => {
   showDeleteDialog.value = false
   menuCloseTrigger.value++
 }
+
+// === SIMULASI LOADING ===
+onMounted(() => {
+  setTimeout(() => {
+    isBalanceLoading.value = false
+  }, 1500)
+})
 </script>
 
 <template>
@@ -107,12 +108,12 @@ const cancelDelete = () => {
       </button>
     </div>
 
-    <!-- PANGGIL KOMPONEN KARTU -->
     <FinanceWalletCard 
       v-for="wallet in wallets" 
       :key="wallet.id" 
       :wallet="wallet" 
       :is-balance-hidden="isBalanceHidden"
+      :is-balance-loading="isBalanceLoading"
       :close-trigger="menuCloseTrigger"
       @toggle-hide="isBalanceHidden = !isBalanceHidden"
       @rename="openRenameDialog"
@@ -199,7 +200,6 @@ const cancelDelete = () => {
   color: var(--md-sys-color-primary);
 }
 
-/* === FORM MODAL (TAMBAH/UBAH) === */
 .form-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -274,7 +274,6 @@ const cancelDelete = () => {
   color: var(--md-sys-color-on-primary);
 }
 
-/* Animasi */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

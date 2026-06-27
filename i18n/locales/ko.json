@@ -76,9 +76,9 @@
     "finance": {
       "index": {
         "title": "재무 대시보드",
-        "desc": "설정에서 재무 메뉴를 선택하면 이 페이지가 나타납니다."
-      },
-      "analytics": {
+        "desc": "설정에서 재무 메뉴를 선택하면 이 페이지가 나타납니다.",
+        "menu_title": "메뉴",
+        "see_all": "모두 보기",
         "greeting": "좋은 아침이에요 👋",
         "total_saldo": "총 잔액",
         "income": "수입",
@@ -87,6 +87,7 @@
         "show": "잔액 표시",
         "hide": "잔액 숨기기"
       },
+      "analytics": {},
       "transactions": {},
       "debt": {},
       "wallets": {
@@ -120,14 +121,14 @@
         "menu": "메뉴",
         "account_settings": "계정 설정",
         "account_settings_desc": "보안 및 프로필 변경",
+        "hide_balance": "잔액 숨기기",
+        "hide_balance_desc": "금액 가리기",
         "logout_dialog": {
           "title": "재무에서 로그아웃하시겠습니까?",
           "message": "메인 페이지로 이동합니다.",
           "confirm": "예, 로그아웃",
           "cancel": "취소"
-        },
-        "hide_balance": "잔액 숨기기",
-        "hide_balance_desc": "금액 가리기"
+        }
       }
     }
   }
