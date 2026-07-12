@@ -1,4 +1,3 @@
-// nuxt.config.ts
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -8,17 +7,14 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
   ],
 
-  // Color Mode
   colorMode: {
     preference: 'dark',
-    classSuffix: '',       // .dark / .light (bukan .dark-mode)
+    classSuffix: '',
     fallback: 'dark',
   },
 
-  // i18n
   i18n: {
-    strategy: 'no_prefix', // <-- TAMBAHKAN INI (URL tetap bersih, tanpa /id/ atau /ko/)
-    
+    strategy: 'no_prefix',
     defaultLocale: 'id',
     locales: [
       { code: 'id', name: 'Indonesia', file: 'id.json' },
@@ -26,12 +22,10 @@ export default defineNuxtConfig({
       { code: 'ko', name: '한국어', file: 'ko.json' },
     ],
     langDir: 'locales/',
-    lazy: true,
-    
-    // Simpan bahasa ke localStorage
     detectBrowserLanguage: {
-      useLocalStorage: true,
-    }
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+    },
   },
 
   css: [
