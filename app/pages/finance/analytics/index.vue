@@ -25,16 +25,6 @@ const maxExpense = computed(() =>
   Math.max(...categoryExpenses.map((c) => c.amount)),
 )
 
-const recentTransactions = [
-  { name: 'Grab Food', category: 'Makanan', amount: -45_000, date: 'Hari ini', icon: 'lucide:utensils' },
-  { name: 'Gaji Bulanan', category: 'Pemasukan', amount: 8_500_000, date: 'Kemarin', icon: 'lucide:wallet' },
-  { name: 'Spotify Premium', category: 'Hiburan', amount: -54_990, date: '2 hari lalu', icon: 'lucide:music' },
-  { name: 'Indomaret', category: 'Belanja', amount: -125_000, date: '3 hari lalu', icon: 'lucide:shopping-cart' },
-  { name: 'PLN Listrik', category: 'Tagihan', amount: -350_000, date: '5 hari lalu', icon: 'lucide:zap' },
-  { name: 'Gojek', category: 'Transportasi', amount: -28_000, date: '5 hari lalu', icon: 'lucide:car' },
-  { name: 'Apotek K24', category: 'Kesehatan', amount: -85_000, date: '1 minggu lalu', icon: 'lucide:heart-pulse' },
-]
-
 /* ========== Donut Hover ========== */
 
 const hoveredIndex = ref<number | null>(null)
@@ -50,10 +40,6 @@ function pct(n: number): string {
 
 /* ========== Helpers ========== */
 
-function formatRupiah(n: number): string {
-  return 'Rp ' + n.toLocaleString('id-ID')
-}
-
 function formatShort(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}jt`
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}rb`
@@ -63,7 +49,6 @@ function formatShort(n: number): string {
 
 <template>
   <div class="analytics-page">
-    <!-- Subtle background decoration -->
     <div class="analytics-bg-glow" />
 
     <div class="analytics-container">
@@ -93,9 +78,7 @@ function formatShort(n: number): string {
         <div class="donut-card__inner">
           <div class="donut-center-col">
             <div class="donut-wrap">
-              <!-- Glow ring behind donut -->
               <div class="donut-glow" />
-
               <svg viewBox="0 0 36 36" class="donut-svg">
                 <circle
                   v-for="(cat, i) in categoryExpenses"
@@ -111,7 +94,6 @@ function formatShort(n: number): string {
                   @mouseleave="hoveredIndex = null"
                 />
               </svg>
-
               <div class="donut-center">
                 <template v-if="hoveredCategory">
                   <div
@@ -201,31 +183,6 @@ function formatShort(n: number): string {
           </div>
         </div>
       </div>
-
-      <!-- Recent Transactions -->
-      <div class="tx-card">
-        <div class="tx-card__header">
-          <h2 class="section-title">Transaksi Terbaru</h2>
-        </div>
-        <ul class="tx-list">
-          <li
-            v-for="(tx, i) in recentTransactions"
-            :key="i"
-            :class="['tx-item', { 'tx-item--bordered': i > 0 }]"
-          >
-            <div class="tx-item__icon">
-              <Icon :name="tx.icon" class="tx-item__icon-img" />
-            </div>
-            <div class="tx-item__info">
-              <p class="tx-item__name">{{ tx.name }}</p>
-              <p class="tx-item__meta">{{ tx.category }} · {{ tx.date }}</p>
-            </div>
-            <span :class="['tx-item__amount', { 'tx-item__amount--income': tx.amount >= 0 }]">
-              {{ tx.amount >= 0 ? '+' : '' }}{{ formatRupiah(Math.abs(tx.amount)) }}
-            </span>
-          </li>
-        </ul>
-      </div>
     </div>
   </div>
 </template>
@@ -246,12 +203,9 @@ function formatShort(n: number): string {
   --c-text-tertiary: #94a3b8;
   --c-text-muted: #94a3b8;
   --c-bar-track: #f1f5f9;
-  --c-tx-hover: #f8fafc;
-  --c-tx-border: #f1f5f9;
   --c-legend-hover: #f1f5f9;
+  --c-legend-border: #e2e8f0;
   --c-summary-divider: #e2e8f0;
-  --c-icon-bg: #f1f5f9;
-  --c-icon-text: #64748b;
   --c-glow: #6366f1;
   --c-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --c-card-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
@@ -274,12 +228,9 @@ function formatShort(n: number): string {
   --c-text-tertiary: #64748b;
   --c-text-muted: #64748b;
   --c-bar-track: #1e293b;
-  --c-tx-hover: #1e293b;
-  --c-tx-border: #1e293b;
   --c-legend-hover: #1e293b;
+  --c-legend-border: #334155;
   --c-summary-divider: #1e293b;
-  --c-icon-bg: #1e293b;
-  --c-icon-text: #cbd5e1;
   --c-glow: #6366f1;
   --c-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
   --c-card-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15);
@@ -417,7 +368,6 @@ function formatShort(n: number): string {
   overflow: hidden;
 }
 
-/* Subtle top gradient line */
 .donut-card::before {
   content: '';
   position: absolute;
@@ -674,21 +624,23 @@ function formatShort(n: number): string {
 }
 
 /* ================================================
-   LEGEND GRID
+   LEGEND GRID (GAP TRICK)
    ================================================ */
 
 .legend-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  border-top: 1px solid var(--c-surface-border-alt);
-  padding-top: 1.5rem;
+  gap: 1.5px;
+  background-color: var(--c-legend-border);
+  border: 1.5px solid var(--c-legend-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-top: 1.5rem;
 }
 
 @media (min-width: 640px) {
   .legend-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 0.625rem;
   }
 }
 
@@ -697,9 +649,8 @@ function formatShort(n: number): string {
   align-items: center;
   gap: 0.625rem;
   cursor: pointer;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.625rem;
-  margin: 0 -0.625rem;
+  padding: 0.875rem 1rem;
+  background-color: var(--c-surface);
   transition: background-color 200ms ease, transform 150ms ease;
 }
 
@@ -709,11 +660,11 @@ function formatShort(n: number): string {
 
 .legend-item--active {
   background-color: var(--c-surface-hover);
-  transform: translateX(2px);
+  transform: scale(1.02);
 }
 
 .dark .legend-item--active {
-  background-color: rgba(30, 41, 59, 0.6);
+  background-color: rgba(30, 41, 59, 0.8);
 }
 
 .legend-dot {
@@ -761,7 +712,6 @@ function formatShort(n: number): string {
   padding: 1.5rem;
   border: 1px solid var(--c-surface-border);
   box-shadow: var(--c-card-shadow);
-  margin-bottom: 1.5rem;
 }
 
 @media (min-width: 640px) {
@@ -828,7 +778,6 @@ function formatShort(n: number): string {
   position: relative;
 }
 
-/* Subtle inner shine */
 .bar-fill::after {
   content: '';
   position: absolute;
@@ -854,118 +803,5 @@ function formatShort(n: number): string {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
   white-space: nowrap;
   letter-spacing: 0.01em;
-}
-
-/* ================================================
-   TRANSACTIONS
-   ================================================ */
-
-.tx-card {
-  background-color: var(--c-surface);
-  border-radius: 1.25rem;
-  border: 1px solid var(--c-surface-border);
-  box-shadow: var(--c-card-shadow);
-  overflow: hidden;
-}
-
-.tx-card__header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--c-surface-border-alt);
-}
-
-@media (min-width: 640px) {
-  .tx-card__header {
-    padding: 1.25rem 1.75rem;
-  }
-}
-
-.tx-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tx-item {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1.5rem;
-  transition: background-color 150ms ease;
-}
-
-@media (min-width: 640px) {
-  .tx-item {
-    gap: 1rem;
-    padding: 1rem 1.75rem;
-  }
-}
-
-.tx-item:hover {
-  background-color: var(--c-tx-hover);
-}
-
-.tx-item--bordered {
-  border-top: 1px solid var(--c-tx-border);
-}
-
-.tx-item__icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  background-color: var(--c-icon-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform 200ms ease;
-}
-
-.tx-item:hover .tx-item__icon {
-  transform: scale(1.05);
-}
-
-.tx-item__icon-img {
-  width: 1.0625rem;
-  height: 1.0625rem;
-  color: var(--c-icon-text);
-}
-
-.tx-item__info {
-  flex: 1;
-  min-width: 0;
-}
-
-.tx-item__name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--c-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.tx-item__meta {
-  font-size: 0.75rem;
-  color: var(--c-text-tertiary);
-  margin: 2px 0 0;
-}
-
-.tx-item__amount {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--c-text-primary);
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-
-.tx-item__amount--income {
-  color: #059669;
-}
-
-.dark .tx-item__amount--income {
-  color: #34d399;
 }
 </style>
