@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { getWalletTypeInfo } from '~/composables/useFinanceStore'
 
 const { t } = useI18n()
 
@@ -22,11 +23,17 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['toggle-hide', 'rename', 'set-default', 'delete'])
+const emit = defineEmits(['toggle-hide', 'rename', 'change-type', 'set-default', 'delete'])
 
 const isMenuOpen = ref(false)
+const menuRef = ref(null)
 
-const toggleMenu = () => {
+const walletTypeInfo = computed(() => getWalletTypeInfo(props.wallet.type))
+const displayIcon = computed(() => walletTypeInfo.value.icon)
+const displayType = computed(() => walletTypeInfo.value.label)
+
+const toggleMenu = (event) => {
+  event.stopPropagation()
   isMenuOpen.value = !isMenuOpen.value
 }
 
@@ -35,10 +42,17 @@ const closeMenu = () => {
 }
 
 watch(() => props.closeTrigger, () => {
-  if (isMenuOpen.value) {
+  if (isMenuOpen.value) closeMenu()
+})
+
+const handleClickOutside = (event) => {
+  if (isMenuOpen.value && menuRef.value && !menuRef.value.contains(event.target)) {
     closeMenu()
   }
-})
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
 const formatRupiah = (value) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value)
@@ -60,15 +74,22 @@ const getDisplayBalance = (value) => {
         <Icon name="mdi:dots-vertical" size="20" />
       </button>
       
-      <div v-if="isMenuOpen" class="dropdown-menu">
+      <div v-if="isMenuOpen" ref="menuRef" class="dropdown-menu">
+        <div class="dropdown-item" @click="emit('change-type', wallet); closeMenu()">
+          <Icon name="mdi:swap-horizontal-circle" size="18" />
+          <span>{{ t('pages.finance.wallets.menu.change_type') }}</span>
+        </div>
+
         <div class="dropdown-item" @click="emit('rename', wallet); closeMenu()">
           <Icon name="mdi:pencil" size="18" />
           <span>{{ t('pages.finance.wallets.menu.rename') }}</span>
         </div>
+
         <div v-if="!wallet.isDefault" class="dropdown-item" @click="emit('set-default', wallet.id); closeMenu()">
           <Icon name="mdi:star" size="18" />
           <span>{{ t('pages.finance.wallets.menu.set_default') }}</span>
         </div>
+
         <div v-if="!wallet.isDefault" class="dropdown-item text-danger" @click="emit('delete', wallet, $event)">
           <Icon name="mdi:trash-can-outline" size="18" />
           <span>{{ t('pages.finance.wallets.menu.delete') }}</span>
@@ -78,14 +99,14 @@ const getDisplayBalance = (value) => {
 
     <div class="wallet-top">
       <div class="wallet-icon-bg">
-        <Icon :name="wallet.icon" size="28" class="wallet-icon" />
+        <Icon :name="displayIcon" size="28" class="wallet-icon" />
       </div>
       <div class="wallet-info">
         <span class="wallet-name">
           {{ wallet.name }}
           <Icon v-if="wallet.isDefault" name="mdi:star" size="16" class="default-star" />
         </span>
-        <span class="wallet-type">{{ wallet.type }}</span>
+        <span class="wallet-type">{{ displayType }}</span>
       </div>
     </div>
 
@@ -98,16 +119,13 @@ const getDisplayBalance = (value) => {
       </div>
       
       <h2 class="balance-amount">
-        <!-- Diubah: memanggil WalletCardSkeleton langsung -->
-        <FinanceWalletCardSkeleton 
+        <WalletCardSkeleton 
           v-if="isBalanceLoading" 
           :text="isBalanceHidden ? formatRupiah(wallet.balance).replace(/[0-9]/g, 'x') : formatRupiah(wallet.balance)" 
         />
         <span v-else class="amount-reveal">{{ getDisplayBalance(wallet.balance) }}</span>
       </h2>
     </div>
-
-    <div v-if="isMenuOpen" class="menu-overlay" @click="closeMenu"></div>
   </div>
 </template>
 
@@ -153,7 +171,7 @@ const getDisplayBalance = (value) => {
   position: absolute;
   top: 32px;
   right: 0;
-  width: 180px;
+  width: 200px;
   background-color: var(--md-sys-color-surface-container);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 12px;
@@ -179,16 +197,6 @@ const getDisplayBalance = (value) => {
 
 .text-danger {
   color: var(--md-sys-color-error);
-}
-
-.menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 900;
-  background-color: transparent;
 }
 
 .wallet-top {

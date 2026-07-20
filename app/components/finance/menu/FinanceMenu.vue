@@ -3,7 +3,6 @@ import { computed } from 'vue'
 
 const { t } = useI18n()
 
-// Konfigurasi menu
 const menus = computed(() => [
   { 
     icon: 'material-symbols:donut-large-rounded', 
@@ -11,9 +10,9 @@ const menus = computed(() => [
     to: '/finance/analytics' 
   },
   { 
-    icon: 'material-symbols:widgets-outline', 
-    label: 'Menu 2', 
-    to: null 
+    icon: 'mdi:hand-coin-outline',                     //
+    label: t('components.navbar.debt'), 
+    to: '/finance/debt' 
   },
   { 
     icon: 'material-symbols:widgets-outline', 
@@ -29,7 +28,7 @@ const menus = computed(() => [
     icon: 'material-symbols:grid-view-rounded', 
     label: t('pages.finance.index.see_all'), 
     to: null,
-    isSeeAll: true // Mencegah item ini terlihat redup (dummy)
+    isSeeAll: true 
   },
 ])
 </script>
@@ -57,8 +56,8 @@ const menus = computed(() => [
 </template>
 
 <style scoped>
+/* ========== Style tetap sama persis ========== */
 .finance-menu-card {
-  /* Konsisten dengan style Card Utama */
   background: color-mix(in srgb, var(--md-sys-color-surface-container) 96%, var(--md-sys-color-primary) 4%);
   border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 20%, transparent);
   border-radius: 28px;
@@ -81,7 +80,7 @@ const menus = computed(() => [
   padding-left: 4px;
 }
 
-/* === LAYOUT BARU: WRAP & CENTER (Tanpa Scroll) === */
+/* Layout: wrap & center */
 .menu-list {
   display: flex;
   flex-wrap: wrap;
@@ -96,7 +95,6 @@ const menus = computed(() => [
   justify-content: center;
   gap: 10px;
   padding: 20px 8px;
-  /* Hitungan flex: 5 item = 4 gap * 12px = 48px */
   width: calc((100% - 48px) / 5);
   background-color: var(--md-sys-color-surface-variant);
   border-radius: 20px;
@@ -117,7 +115,6 @@ const menus = computed(() => [
   transform: scale(0.95);
 }
 
-/* Style khusus untuk dummy menu (kecuali "Lihat Semua") */
 .menu-item.is-dummy {
   opacity: 0.5;
   cursor: default;
@@ -156,13 +153,11 @@ const menus = computed(() => [
   width: 100%;
 }
 
-/* Animasi masuk */
 @keyframes enterUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* === RESPONSIF (Mobile kecil) === */
 @media (max-width: 480px) {
   .finance-menu-card {
     padding: 20px 16px 16px;
@@ -171,7 +166,6 @@ const menus = computed(() => [
   }
   
   .menu-item {
-    /* Di mobile: 3 item per baris (2 gap * 12px = 24px) */
     width: calc((100% - 24px) / 3);
     padding: 16px 6px;
     border-radius: 16px;

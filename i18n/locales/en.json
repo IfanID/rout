@@ -9,7 +9,9 @@
       "runningMan": "Running Man",
       "transactions": "Transactions",
       "wallets": "Wallets",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "ownerDashboard": "Owner Dashboard",
+      "ownerUsers": "Users"
     },
     "quickAddMenu": {
       "title": "Create New Transaction",
@@ -22,11 +24,23 @@
         "expense_title": "Record Expense",
         "transfer_title": "Record Transfer",
         "debt_title": "Record Debt",
+        "wallet": "Wallet",
+        "from_wallet": "From Wallet",
+        "to_wallet": "To Wallet",
+        "to_wallet_debt": "Debt to Wallet",
+        "to_wallet_placeholder": "Select destination wallet",
+        "category": "Category",
+        "category_placeholder": "Select category",
         "nominal": "Amount",
         "description": "Description",
         "description_placeholder": "e.g., Monthly salary, Monthly shopping",
         "submit": "Save Transaction",
-        "empty_nominal": "Amount cannot be empty!"
+        "empty_nominal": "Amount cannot be empty!",
+        "empty_category": "Category must be selected!",
+        "fine": "Fine",
+        "total": "Total",
+        "lender_wallet": "Lender Wallet",
+        "borrower_wallet": "Borrower Wallet"
       }
     },
     "centerMenu": {
@@ -48,7 +62,78 @@
     "owner": {
       "title": "Owner Panel",
       "card_title": "Restricted Access",
-      "card_desc": "This area is exclusively for the app owner."
+      "card_desc": "This area is exclusively for the app owner.",
+      "settings": {
+        "title": "Owner Settings",
+        "app": "App",
+        "app_name": "App Name",
+        "app_version": "App Version",
+        "system": "System",
+        "center_button": "Center Button",
+        "center_button_desc": "Change the center button menu",
+        "center_options": {
+          "dashboard": "Dashboard",
+          "analytics": "Analytics",
+          "users": "Users"
+        },
+        "security": "Security",
+        "reset_security": "Reset Security",
+        "reset_security_desc": "Reset app PIN and lock",
+        "logout_dialog": {
+          "title": "Leave Owner Panel?",
+          "message": "You will be redirected to the main page.",
+          "confirm": "Yes, Logout",
+          "cancel": "Cancel"
+        }
+      },
+      "local_data": {
+        "title": "Local Data Management",
+        "subtitle": "Manage all localStorage data",
+        "total_keys": "Total Keys",
+        "total_size": "Total Size",
+        "search_placeholder": "Search key...",
+        "refresh": "Refresh",
+        "import": "Import",
+        "export": "Export",
+        "delete_all": "Delete All",
+        "col_key": "Key",
+        "col_size": "Size",
+        "col_actions": "Actions",
+        "view": "View",
+        "edit": "Edit",
+        "copy": "Copy",
+        "delete": "Delete",
+        "empty": "No data in localStorage",
+        "size": "Size",
+        "edit_title": "Edit: {0}",
+        "cancel": "Cancel",
+        "save": "Save",
+        "yes": "Yes",
+        "edit_success": "Data updated successfully",
+        "edit_error": "Failed to save data",
+        "delete_confirm_single": "Delete key \"{0}\"?",
+        "delete_success": "Key deleted successfully",
+        "copy_success": "Copied to clipboard",
+        "copy_error": "Failed to copy",
+        "delete_all_title": "Delete All ROut Data?",
+        "delete_all_message": "All settings & finance data will be deleted. System data will not be touched.",
+        "delete_all_confirm": "Yes, Delete All",
+        "delete_all_success": "All ROut data has been deleted",
+        "export_success": "Data exported successfully",
+        "import_confirm": "Existing data will be overwritten. Continue?",
+        "import_confirm_title": "Import Data",
+        "import_success": "Data imported successfully",
+        "import_error": "Failed to import data. Make sure the JSON file is valid.",
+        "user_keys": "ROut Data",
+        "show_all": "Show All",
+        "show_user_only": "ROut Data Only",
+        "import_no_valid_keys": "No valid ROut data found in file",
+        "delete_all_confirm_keys": "Delete all ROut data? System data will not be deleted.",
+        "summary_wallets": "Total Wallets",
+        "summary_transactions": "Total Transactions",
+        "summary_debts": "Active Loans",
+        "summary_balance_hidden": "Balance Hidden"
+      }
     },
     "profile": {
       "title": "User Profile",
@@ -89,7 +174,26 @@
       },
       "analytics": {},
       "transactions": {},
-      "debt": {},
+      "debt": {
+        "title": "Debt",
+        "subtitle": "Manage internal loans",
+        "unpaid": "Unpaid",
+        "paid": "Paid",
+        "empty": "No internal loans yet",
+        "principal": "Principal",
+        "total": "Total",
+        "pay": "Pay",
+        "pay_confirm_title": "Confirm Payment",
+        "pay_confirm_desc": "Money will be taken from the borrower wallet",
+        "pay_from": "Paid from",
+        "cancel": "Cancel",
+        "yes_pay": "Yes, Pay",
+        "status_paid": "Paid",
+        "paid_at": "Paid on",
+        "history": "History",
+        "history_title": "Loan History",
+        "history_empty": "No paid loans yet"
+      },
       "wallets": {
         "title": "Wallets",
         "add": "Add Wallet",
@@ -97,13 +201,18 @@
         "default_name": "Main Wallet",
         "menu": {
           "rename": "Rename",
+          "change_type": "Change Type",
           "set_default": "Set as Default",
           "delete": "Delete"
         },
         "dialog": {
           "add_title": "Add New Wallet",
+          "edit_title": "Edit Wallet",
+          "edit_name_title": "Rename Wallet",
+          "change_type_title": "Change Wallet Type",
           "rename_title": "Rename Wallet",
           "name_placeholder": "Enter wallet name",
+          "type": "Wallet Type",
           "cancel": "Cancel",
           "save": "Save",
           "delete_title": "Delete Wallet?",
@@ -130,6 +239,35 @@
           "cancel": "Cancel"
         }
       }
+    },
+    "fine_percent": "Fine ({0}%)"
+  },
+  "categories": {
+    "income": {
+      "salary": "Salary",
+      "freelance": "Freelance",
+      "investment": "Investment",
+      "gift": "Gift",
+      "other": "Other"
+    },
+    "expense": {
+      "food": "Food",
+      "transport": "Transport",
+      "shopping": "Shopping",
+      "housing": "Housing",
+      "bills": "Bills",
+      "entertainment": "Entertainment",
+      "health": "Health",
+      "other": "Other"
+    },
+    "transfer": {
+      "wallet": "Wallet Transfer",
+      "other": "Other"
+    },
+    "debt": {
+      "loan": "Loan",
+      "installment": "Installment",
+      "other": "Other"
     }
   }
 }

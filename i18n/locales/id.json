@@ -9,7 +9,9 @@
       "runningMan": "Running Man",
       "transactions": "Transaksi",
       "wallets": "Dompet",
-      "analytics": "Analitik"
+      "analytics": "Analitik",
+      "ownerDashboard": "Dasbor Owner",
+      "ownerUsers": "Pengguna"
     },
     "quickAddMenu": {
       "title": "Buat Transaksi Baru",
@@ -22,11 +24,23 @@
         "expense_title": "Catat Pengeluaran",
         "transfer_title": "Catat Transfer",
         "debt_title": "Catat Pinjaman",
+        "wallet": "Dompet",
+        "from_wallet": "Dari Dompet",
+        "to_wallet": "Ke Dompet",
+        "to_wallet_debt": "Hutang ke Dompet",
+        "to_wallet_placeholder": "Pilih dompet tujuan",
+        "category": "Kategori",
+        "category_placeholder": "Pilih kategori",
         "nominal": "Nominal",
         "description": "Keterangan",
         "description_placeholder": "Contoh: Gaji bulanan, Belanja bulanan",
         "submit": "Simpan Transaksi",
-        "empty_nominal": "Nominal tidak boleh kosong!"
+        "empty_nominal": "Nominal tidak boleh kosong!",
+        "empty_category": "Kategori harus dipilih!",
+        "fine": "Denda",
+        "total": "Total",
+        "lender_wallet": "Dompet Pemberi Pinjaman",
+        "borrower_wallet": "Dompet Peminjam"
       }
     },
     "centerMenu": {
@@ -48,7 +62,78 @@
     "owner": {
       "title": "Owner Panel",
       "card_title": "Akses Terbatas",
-      "card_desc": "Area ini khusus untuk pemilik aplikasi."
+      "card_desc": "Area ini khusus untuk pemilik aplikasi.",
+      "settings": {
+        "title": "Pengaturan Owner",
+        "app": "Aplikasi",
+        "app_name": "Nama Aplikasi",
+        "app_version": "Versi Aplikasi",
+        "system": "Sistem",
+        "center_button": "Tombol Pusat",
+        "center_button_desc": "Ubah menu di tombol tengah navigasi",
+        "center_options": {
+          "dashboard": "Dasbor",
+          "analytics": "Analitik",
+          "users": "Pengguna"
+        },
+        "security": "Keamanan",
+        "reset_security": "Reset Keamanan",
+        "reset_security_desc": "Atur ulang PIN dan kunci aplikasi",
+        "logout_dialog": {
+          "title": "Keluar dari Owner Panel?",
+          "message": "Anda akan diarahkan kembali ke halaman utama.",
+          "confirm": "Ya, Keluar",
+          "cancel": "Batal"
+        }
+      },
+      "local_data": {
+        "title": "Manajemen Data Lokal",
+        "subtitle": "Kelola seluruh data localStorage",
+        "total_keys": "Total Key",
+        "total_size": "Ukuran Total",
+        "search_placeholder": "Cari key...",
+        "refresh": "Refresh",
+        "import": "Impor",
+        "export": "Ekspor",
+        "delete_all": "Hapus Semua",
+        "col_key": "Key",
+        "col_size": "Ukuran",
+        "col_actions": "Aksi",
+        "view": "Lihat",
+        "edit": "Edit",
+        "copy": "Salin",
+        "delete": "Hapus",
+        "empty": "Tidak ada data di localStorage",
+        "size": "Ukuran",
+        "edit_title": "Edit: {0}",
+        "cancel": "Batal",
+        "save": "Simpan",
+        "yes": "Ya",
+        "edit_success": "Data berhasil diperbarui",
+        "edit_error": "Gagal menyimpan data",
+        "delete_confirm_single": "Hapus key \"{0}\"?",
+        "delete_success": "Key berhasil dihapus",
+        "copy_success": "Disalin ke clipboard",
+        "copy_error": "Gagal menyalin",
+        "delete_all_title": "Hapus Semua Data ROut?",
+        "delete_all_message": "Semua data pengaturan & finance akan dihapus. Data sistem tidak akan disentuh.",
+        "delete_all_confirm": "Ya, Hapus Semua",
+        "delete_all_success": "Semua data ROut telah dihapus",
+        "export_success": "Data berhasil diekspor",
+        "import_confirm": "Data yang ada akan ditimpa. Lanjutkan?",
+        "import_confirm_title": "Impor Data",
+        "import_success": "Data berhasil diimpor",
+        "import_error": "Gagal mengimpor data. Pastikan file JSON valid.",
+        "user_keys": "Data ROut",
+        "show_all": "Tampilkan Semua",
+        "show_user_only": "Data ROut Saja",
+        "import_no_valid_keys": "Tidak ada data ROut yang valid di file",
+        "delete_all_confirm_keys": "Hapus semua data ROut? Data sistem tidak akan dihapus.",
+        "summary_wallets": "Total Dompet",
+        "summary_transactions": "Total Transaksi",
+        "summary_debts": "Pinjaman Aktif",
+        "summary_balance_hidden": "Saldo Tersembunyi"
+      }
     },
     "profile": {
       "title": "Profil Pengguna",
@@ -89,7 +174,26 @@
       },
       "analytics": {},
       "transactions": {},
-      "debt": {},
+      "debt": {
+        "title": "Hutang",
+        "subtitle": "Kelola pinjaman internal",
+        "unpaid": "Belum Lunas",
+        "paid": "Sudah Lunas",
+        "empty": "Belum ada pinjaman internal",
+        "principal": "Pokok",
+        "total": "Total",
+        "pay": "Bayar",
+        "pay_confirm_title": "Konfirmasi Pembayaran",
+        "pay_confirm_desc": "Uang akan diambil dari dompet peminjam",
+        "pay_from": "Dibayar dari",
+        "cancel": "Batal",
+        "yes_pay": "Ya, Bayar",
+        "status_paid": "Lunas",
+        "paid_at": "Dibayar pada",
+        "history": "Riwayat",
+        "history_title": "Riwayat Pinjaman",
+        "history_empty": "Belum ada pinjaman yang lunas"
+      },
       "wallets": {
         "title": "Dompet",
         "add": "Tambah Dompet",
@@ -97,13 +201,18 @@
         "default_name": "Dompet Utama",
         "menu": {
           "rename": "Ubah Nama",
+          "change_type": "Ubah Tipe",
           "set_default": "Jadikan Default",
           "delete": "Hapus"
         },
         "dialog": {
           "add_title": "Tambah Dompet Baru",
+          "edit_title": "Edit Dompet",
+          "edit_name_title": "Ubah Nama Dompet",
+          "change_type_title": "Ubah Tipe Dompet",
           "rename_title": "Ubah Nama Dompet",
           "name_placeholder": "Masukkan nama dompet",
+          "type": "Tipe Dompet",
           "cancel": "Batal",
           "save": "Simpan",
           "delete_title": "Hapus Dompet?",
@@ -130,6 +239,35 @@
           "cancel": "Batal"
         }
       }
+    },
+    "fine_percent": "Denda ({0}%)"
+  },
+  "categories": {
+    "income": {
+      "salary": "Gaji",
+      "freelance": "Freelance",
+      "investment": "Investasi",
+      "gift": "Hadiah",
+      "other": "Lainnya"
+    },
+    "expense": {
+      "food": "Makanan",
+      "transport": "Transportasi",
+      "shopping": "Belanja",
+      "housing": "Rumah",
+      "bills": "Tagihan",
+      "entertainment": "Hiburan",
+      "health": "Kesehatan",
+      "other": "Lainnya"
+    },
+    "transfer": {
+      "wallet": "Antar Dompet",
+      "other": "Lainnya"
+    },
+    "debt": {
+      "loan": "Pinjaman",
+      "installment": "Cicilan",
+      "other": "Lainnya"
     }
   }
 }

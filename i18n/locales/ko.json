@@ -9,7 +9,9 @@
       "runningMan": "러닝맨",
       "transactions": "거래내역",
       "wallets": "지갑",
-      "analytics": "분석"
+      "analytics": "분석",
+      "ownerDashboard": "소유자 대시보드",
+      "ownerUsers": "사용자"
     },
     "quickAddMenu": {
       "title": "새 거래 만들기",
@@ -22,11 +24,23 @@
         "expense_title": "지출 기록",
         "transfer_title": "이체 기록",
         "debt_title": "빚 기록",
+        "wallet": "지갑",
+        "from_wallet": "출발 지갑",
+        "to_wallet": "도착 지갑",
+        "to_wallet_debt": "빚 지갑",
+        "to_wallet_placeholder": "도착 지갑을 선택하세요",
+        "category": "카테고리",
+        "category_placeholder": "카테고리 선택",
         "nominal": "금액",
         "description": "설명",
         "description_placeholder": "예: 월급, 월간 쇼핑",
         "submit": "거래 저장",
-        "empty_nominal": "금액을 입력해주세요!"
+        "empty_nominal": "금액을 입력해주세요!",
+        "empty_category": "카테고리를 선택해주세요!",
+        "fine": "벌금",
+        "total": "합계",
+        "lender_wallet": "대출 지갑",
+        "borrower_wallet": "차용 지갑"
       }
     },
     "centerMenu": {
@@ -48,7 +62,78 @@
     "owner": {
       "title": "소유자 패널",
       "card_title": "제한된 접근",
-      "card_desc": "이 영역은 앱 소유자를 위한 것입니다."
+      "card_desc": "이 영역은 앱 소유자를 위한 것입니다.",
+      "settings": {
+        "title": "소유자 설정",
+        "app": "앱",
+        "app_name": "앱 이름",
+        "app_version": "앱 버전",
+        "system": "시스템",
+        "center_button": "중앙 버튼",
+        "center_button_desc": "가운데 버튼 메뉴 변경",
+        "center_options": {
+          "dashboard": "대시보드",
+          "analytics": "분석",
+          "users": "사용자"
+        },
+        "security": "보안",
+        "reset_security": "보안 재설정",
+        "reset_security_desc": "앱 PIN 및 잠금 재설정",
+        "logout_dialog": {
+          "title": "소유자 패널에서 로그아웃하시겠습니까?",
+          "message": "메인 페이지로 이동합니다.",
+          "confirm": "예, 로그아웃",
+          "cancel": "취소"
+        }
+      },
+      "local_data": {
+        "title": "로컬 데이터 관리",
+        "subtitle": "모든 localStorage 데이터 관리",
+        "total_keys": "총 키",
+        "total_size": "총 크기",
+        "search_placeholder": "키 검색...",
+        "refresh": "새로고침",
+        "import": "가져오기",
+        "export": "내보내기",
+        "delete_all": "전체 삭제",
+        "col_key": "키",
+        "col_size": "크기",
+        "col_actions": "작업",
+        "view": "보기",
+        "edit": "편집",
+        "copy": "복사",
+        "delete": "삭제",
+        "empty": "localStorage에 데이터가 없습니다",
+        "size": "크기",
+        "edit_title": "편집: {0}",
+        "cancel": "취소",
+        "save": "저장",
+        "yes": "예",
+        "edit_success": "데이터가 성공적으로 업데이트되었습니다",
+        "edit_error": "데이터 저장 실패",
+        "delete_confirm_single": "\"{0}\" 키를 삭제하시겠습니까?",
+        "delete_success": "키가 성공적으로 삭제되었습니다",
+        "copy_success": "클립보드에 복사되었습니다",
+        "copy_error": "복사 실패",
+        "delete_all_title": "모든 ROut 데이터를 삭제하시겠습니까?",
+        "delete_all_message": "모든 설정 및 재무 데이터가 삭제됩니다. 시스템 데이터는 삭제되지 않습니다.",
+        "delete_all_confirm": "예, 모두 삭제",
+        "delete_all_success": "모든 ROut 데이터가 삭제되었습니다",
+        "export_success": "데이터가 성공적으로 내보내졌습니다",
+        "import_confirm": "기존 데이터를 덮어씁니다. 계속하시겠습니까?",
+        "import_confirm_title": "데이터 가져오기",
+        "import_success": "데이터가 성공적으로 가져와졌습니다",
+        "import_error": "데이터 가져오기 실패. 유효한 JSON 파일인지 확인하세요.",
+        "user_keys": "ROut 데이터",
+        "show_all": "모두 보기",
+        "show_user_only": "ROut 데이터만",
+        "import_no_valid_keys": "파일에서 유효한 ROut 데이터를 찾을 수 없습니다",
+        "delete_all_confirm_keys": "모든 ROut 데이터를 삭제하시겠습니까? 시스템 데이터는 삭제되지 않습니다.",
+        "summary_wallets": "총 지갑",
+        "summary_transactions": "총 거래",
+        "summary_debts": "활성 대출",
+        "summary_balance_hidden": "잔액 숨김"
+      }
     },
     "profile": {
       "title": "사용자 프로필",
@@ -89,7 +174,26 @@
       },
       "analytics": {},
       "transactions": {},
-      "debt": {},
+      "debt": {
+        "title": "빚",
+        "subtitle": "내부 대출 관리",
+        "unpaid": "미납",
+        "paid": "상환 완료",
+        "empty": "아직 내부 대출 기록이 없습니다",
+        "principal": "원금",
+        "total": "합계",
+        "pay": "갚기",
+        "pay_confirm_title": "결제 확인",
+        "pay_confirm_desc": "돈은 차용 지갑에서 인출됩니다",
+        "pay_from": "결제 지갑",
+        "cancel": "취소",
+        "yes_pay": "네, 결제",
+        "status_paid": "상환 완료",
+        "paid_at": "결제 날짜",
+        "history": "기록",
+        "history_title": "대출 기록",
+        "history_empty": "아직 상환된 대출이 없습니다"
+      },
       "wallets": {
         "title": "지갑",
         "add": "지갑 추가",
@@ -97,13 +201,18 @@
         "default_name": "기본 지갑",
         "menu": {
           "rename": "이름 변경",
+          "change_type": "유형 변경",
           "set_default": "기본으로 설정",
           "delete": "삭제"
         },
         "dialog": {
           "add_title": "새 지갑 추가",
+          "edit_title": "지갑 편집",
+          "edit_name_title": "지갑 이름 변경",
+          "change_type_title": "지갑 유형 변경",
           "rename_title": "지갑 이름 변경",
           "name_placeholder": "지갑 이름을 입력하세요",
+          "type": "지갑 유형",
           "cancel": "취소",
           "save": "저장",
           "delete_title": "지갑을 삭제하시겠습니까?",
@@ -130,6 +239,35 @@
           "cancel": "취소"
         }
       }
+    },
+    "fine_percent": "벌금 ({0}%)"
+  },
+  "categories": {
+    "income": {
+      "salary": "급여",
+      "freelance": "프리랜서",
+      "investment": "투자",
+      "gift": "선물",
+      "other": "기타"
+    },
+    "expense": {
+      "food": "음식",
+      "transport": "교통",
+      "shopping": "쇼핑",
+      "housing": "주거",
+      "bills": "청구서",
+      "entertainment": "오락",
+      "health": "건강",
+      "other": "기타"
+    },
+    "transfer": {
+      "wallet": "지갑 이체",
+      "other": "기타"
+    },
+    "debt": {
+      "loan": "대출",
+      "installment": "할부",
+      "other": "기타"
     }
   }
 }

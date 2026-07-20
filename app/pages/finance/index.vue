@@ -1,22 +1,22 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 
 const { t } = useI18n()
+const { totalBalance, totalIncome, totalExpense } = useFinanceStore()
 
-// === STATE LOADING (Khusus Nominal) ===
 const isAmountsLoading = ref(true)
-
-// GANTI REF KE COMPOSABLE GLOBAL
+const isMounted = ref(false)
 const isBalanceHidden = useBalanceVisibility()
 const progressFill = ref(0)
 const progressExpense = ref(0)
 
-// === SUMBER DATA UTAMA ===
-const originals = ref({
-  total: '4.300.000',
-  income: '4.500.000',
-  expense: '200.000'
-})
+const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n)
+
+const originals = computed(() => ({
+  total: formatRupiah(totalBalance.value),
+  income: formatRupiah(totalIncome.value),
+  expense: formatRupiah(totalExpense.value)
+}))
 
 function mask(text) {
   return text.replace(/\d/g, 'x')
@@ -26,117 +26,155 @@ const maskedTotal = computed(() => mask(originals.value.total))
 const maskedIncome = computed(() => mask(originals.value.income))
 const maskedExpense = computed(() => mask(originals.value.expense))
 
-// === HITUNG PERSENTASE OTOMATIS ===
 const incomePercent = computed(() => {
-  const inc = parseInt(originals.value.income.replace(/\./g, ''), 10) || 0
-  const exp = parseInt(originals.value.expense.replace(/\./g, ''), 10) || 0
+  const inc = totalIncome.value
+  const exp = totalExpense.value
   const total = inc + exp
   return total === 0 ? 0 : Math.round((inc / total) * 100)
 })
 
-const expensePercent = computed(() => {
-  return 100 - incomePercent.value
-})
+const expensePercent = computed(() => 100 - incomePercent.value)
 
 function toggleVisibility() {
   isBalanceHidden.value = !isBalanceHidden.value
 }
 
 onMounted(() => {
-  setTimeout(() => {
+  nextTick(() => {
+    isMounted.value = true
     isAmountsLoading.value = false
     setTimeout(() => {
       progressFill.value = incomePercent.value
       progressExpense.value = expensePercent.value
     }, 100)
-  }, 1500)
+  })
 })
 </script>
 
 <template>
   <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <p class="header-greeting">{{ t('pages.finance.index.greeting') }}</p>
-      <h1 class="header-title">Juni 2026</h1>
-    </header>
-
-    <!-- Card -->
-    <section class="card">
-      <!-- Total Saldo -->
-      <div class="total-saldo">
-        <div class="total-saldo-label">{{ t('pages.finance.index.total_saldo') }}</div>
-        <div class="total-saldo-wrapper">
-          <div class="total-saldo-amount">
-            <span class="currency">Rp</span>
-            <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.total" />
-            <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedTotal : originals.total }}</span>
+    <!-- ========== SKELETON ========== -->
+    <template v-if="!isMounted">
+      <div class="header">
+        <div class="skel-line skel-line--greeting"></div>
+        <div class="skel-line skel-line--title"></div>
+      </div>
+      <div class="card skel-card">
+        <div class="skel-saldo-area">
+          <div class="skel-line skel-line--label"></div>
+          <div class="skel-line skel-line--amount"></div>
+        </div>
+        <div class="card-inner">
+          <div class="skel-row">
+            <div class="skel-col">
+              <div class="skel-line skel-line--sm"></div>
+              <div class="skel-line skel-line--md"></div>
+            </div>
+            <div class="skel-divider"></div>
+            <div class="skel-col skel-col--right">
+              <div class="skel-line skel-line--sm"></div>
+              <div class="skel-line skel-line--md"></div>
+            </div>
           </div>
-          <button
-            class="hide-icon"
-            :aria-label="isBalanceHidden ? t('pages.finance.index.show') : t('pages.finance.index.hide')"
-            @click="toggleVisibility"
-          >
-            <Icon
-              :name="isBalanceHidden ? 'material-symbols:visibility-off-rounded' : 'material-symbols:visibility-rounded'"
-              size="24"
-              class="icon-eye"
-            />
-          </button>
+          <div class="skel-row skel-row--bottom">
+            <div class="skel-line skel-line--xs"></div>
+            <div class="skel-vs"></div>
+            <div class="skel-line skel-line--xs"></div>
+          </div>
+          <div class="skel-progress"></div>
         </div>
       </div>
-
-      <!-- Inner Card -->
-      <div class="card-inner">
-        <div class="income-expense">
-          <div class="income-box">
-            <div class="income-label">
-              <div class="icon-badge icon-badge-income">
-                <Icon name="material-symbols:arrow-downward-rounded" size="16" class="icon-income-color" />
-              </div>
-              <span class="label-text">{{ t('pages.finance.index.income') }}</span>
-            </div>
-            <div class="income-amount">
-              <span class="currency">Rp</span>
-              <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.income" />
-              <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedIncome : originals.income }}</span>
-            </div>
+      <div class="skel-menu-card">
+        <div class="skel-line skel-line--menu-title"></div>
+        <div class="skel-menu-grid">
+          <div v-for="i in 5" :key="i" class="skel-menu-item">
+            <div class="skel-menu-icon"></div>
+            <div class="skel-line skel-line--menu-label"></div>
           </div>
-
-          <div class="separator-line"></div>
-
-          <div class="expense-box">
-            <div class="expense-label">
-              <span class="label-text">{{ t('pages.finance.index.expense') }}</span>
-              <div class="icon-badge icon-badge-expense">
-                <Icon name="material-symbols:arrow-upward-rounded" size="16" class="icon-expense-color" />
-              </div>
-            </div>
-            <div class="expense-amount">
-              <span class="currency">Rp</span>
-              <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.expense" />
-              <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedExpense : originals.expense }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bottom-row">
-          <div class="income-percent">{{ incomePercent }}%</div>
-          <div class="vs-separator">
-            <span class="vs-text">{{ t('pages.finance.index.vs') }}</span>
-          </div>
-          <div class="expense-percent">{{ expensePercent }}%</div>
-        </div>
-
-        <div class="progress-bar-container">
-          <div class="progress-fill" :style="{ width: progressFill + '%' }"></div>
-          <div class="progress-expense" :style="{ width: progressExpense + '%' }"></div>
         </div>
       </div>
-    </section>
+    </template>
 
-    <!-- Menu -->
-    <FinanceMenu />
+    <!-- ========== KONTEN ASLI ========== -->
+    <template v-else>
+      <header class="header">
+        <p class="header-greeting">{{ t('pages.finance.index.greeting') }}</p>
+        <h1 class="header-title">Juni 2026</h1>
+      </header>
+
+      <section class="card">
+        <div class="total-saldo">
+          <div class="total-saldo-label">{{ t('pages.finance.index.total_saldo') }}</div>
+          <div class="total-saldo-wrapper">
+            <div class="total-saldo-amount">
+              <span class="currency">Rp</span>
+              <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.total" />
+              <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedTotal : originals.total }}</span>
+            </div>
+            <button
+              class="hide-icon"
+              :aria-label="isBalanceHidden ? t('pages.finance.index.show') : t('pages.finance.index.hide')"
+              @click="toggleVisibility"
+            >
+              <Icon
+                :name="isBalanceHidden ? 'material-symbols:visibility-off-rounded' : 'material-symbols:visibility-rounded'"
+                size="24"
+                class="icon-eye"
+              />
+            </button>
+          </div>
+        </div>
+
+        <div class="card-inner">
+          <div class="income-expense">
+            <div class="income-box">
+              <div class="income-label">
+                <div class="icon-badge icon-badge-income">
+                  <Icon name="material-symbols:arrow-downward-rounded" size="16" class="icon-income-color" />
+                </div>
+                <span class="label-text">{{ t('pages.finance.index.income') }}</span>
+              </div>
+              <div class="income-amount">
+                <span class="currency">Rp</span>
+                <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.income" />
+                <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedIncome : originals.income }}</span>
+              </div>
+            </div>
+
+            <div class="separator-line"></div>
+
+            <div class="expense-box">
+              <div class="expense-label">
+                <span class="label-text">{{ t('pages.finance.index.expense') }}</span>
+                <div class="icon-badge icon-badge-expense">
+                  <Icon name="material-symbols:arrow-upward-rounded" size="16" class="icon-expense-color" />
+                </div>
+              </div>
+              <div class="expense-amount">
+                <span class="currency">Rp</span>
+                <FinanceAmountSkeleton v-if="isAmountsLoading" :text="originals.expense" />
+                <span v-else class="amount-reveal">{{ isBalanceHidden ? maskedExpense : originals.expense }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-row">
+            <div class="income-percent">{{ incomePercent }}%</div>
+            <div class="vs-separator">
+              <span class="vs-text">{{ t('pages.finance.index.vs') }}</span>
+            </div>
+            <div class="expense-percent">{{ expensePercent }}%</div>
+          </div>
+
+          <div class="progress-bar-container">
+            <div class="progress-fill" :style="{ width: progressFill + '%' }"></div>
+            <div class="progress-expense" :style="{ width: progressExpense + '%' }"></div>
+          </div>
+        </div>
+      </section>
+
+      <FinanceMenu />
+    </template>
   </div>
 </template>
 
@@ -154,18 +192,121 @@ onMounted(() => {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== SKELETON ========== */
+.skel-line {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.5s infinite;
+}
+.skel-line--greeting { width: 40%; height: 16px; margin-bottom: 8px; }
+.skel-line--title { width: 35%; height: 36px; border-radius: 18px; }
+.skel-line--label { width: 30%; height: 12px; margin-bottom: 10px; }
+.skel-line--amount { width: 65%; height: 36px; border-radius: 18px; }
+.skel-line--sm { width: 50%; height: 12px; margin-bottom: 10px; }
+.skel-line--md { width: 70%; height: 24px; border-radius: 12px; }
+.skel-line--xs { width: 30%; height: 14px; }
+.skel-line--menu-title { width: 25%; height: 12px; margin-bottom: 16px; }
+.skel-line--menu-label { width: 70%; height: 12px; }
+
+.skel-card {
+  pointer-events: none;
+}
+.skel-saldo-area {
+  margin-bottom: 24px;
+  padding-right: 64px;
+}
+.skel-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  margin-bottom: 24px;
+}
+.skel-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-right: 24px;
+}
+.skel-col--right {
+  padding-right: 0;
+  padding-left: 24px;
+  align-items: flex-end;
+}
+.skel-divider {
+  width: 1px;
+  height: 50px;
+  background: var(--md-sys-color-outline-variant);
+  margin: 0 12px;
+  align-self: center;
+  flex-shrink: 0;
+}
+.skel-row--bottom {
+  align-items: center;
+  margin-bottom: 20px;
+}
+.skel-vs {
+  width: 44px;
+  height: 30px;
+  border-radius: 6px;
+  background-color: var(--md-sys-color-surface-variant);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+.skel-progress {
+  height: 10px;
+  border-radius: 9999px;
+  background-color: var(--md-sys-color-surface-variant);
+  box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.25);
+}
+.skel-menu-card {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 28px;
+  background-color: color-mix(in srgb, var(--md-sys-color-surface-container) 96%, var(--md-sys-color-primary) 4%);
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 20%, transparent);
+}
+.skel-menu-grid {
+  display: flex;
+  gap: 12px;
+}
+.skel-menu-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 8px;
+  background-color: var(--md-sys-color-surface-variant);
+  border-radius: 20px;
+}
+.skel-menu-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.5s infinite;
+}
+
+@keyframes skel-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ========== KONTEN ASLI ========== */
 .header {
   padding: 4px 4px 28px;
   animation: enterUp 500ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
 }
-
 .header-greeting {
   font-size: 16px;
   line-height: 24px;
   letter-spacing: 0.5px;
   color: var(--md-sys-color-on-surface-variant);
 }
-
 .header-title {
   font-size: 36px;
   line-height: 44px;
@@ -174,7 +315,6 @@ onMounted(() => {
   margin-top: 2px;
   letter-spacing: 0.5px;
 }
-
 .card {
   background: color-mix(in srgb, var(--md-sys-color-surface-container) 96%, var(--md-sys-color-primary) 4%);
   border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 20%, transparent);
@@ -184,16 +324,13 @@ onMounted(() => {
   animation: enterUp 500ms cubic-bezier(0.05, 0.7, 0.1, 1) 60ms both;
   transition: box-shadow 300ms cubic-bezier(0.2, 0, 0, 1), transform 300ms cubic-bezier(0.2, 0, 0, 1);
 }
-
 .card:hover {
   box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.1), 0 8px 16px -4px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
-
 .total-saldo {
   margin-bottom: 24px;
 }
-
 .total-saldo-label {
   font-size: 12px;
   line-height: 16px;
@@ -203,13 +340,11 @@ onMounted(() => {
   margin-bottom: 8px;
   text-transform: uppercase;
 }
-
 .total-saldo-wrapper {
   display: flex;
   align-items: center;
   gap: 16px;
 }
-
 .total-saldo-amount {
   font-size: 36px;
   line-height: 44px;
@@ -221,12 +356,10 @@ onMounted(() => {
   display: flex;
   align-items: baseline;
 }
-
 .currency {
   color: var(--md-sys-color-on-surface-variant);
   margin-right: 4px;
 }
-
 .hide-icon {
   position: relative;
   width: 48px;
@@ -244,7 +377,6 @@ onMounted(() => {
   -webkit-tap-highlight-color: transparent;
   transition: background 200ms cubic-bezier(0.2, 0, 0, 1);
 }
-
 .hide-icon::before {
   content: '';
   position: absolute;
@@ -255,28 +387,19 @@ onMounted(() => {
   transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
   pointer-events: none;
 }
-
-.hide-icon:hover {
-  background: color-mix(in srgb, var(--md-sys-color-surface-variant) 80%, transparent);
-}
-
+.hide-icon:hover { background: color-mix(in srgb, var(--md-sys-color-surface-variant) 80%, transparent); }
 .hide-icon:hover::before { opacity: 0.08; }
 .hide-icon:focus-visible::before { opacity: 0.12; }
 .hide-icon:active::before { opacity: 0.12; }
 .hide-icon:active { transform: scale(0.9); transition-duration: 100ms; }
 .hide-icon:focus-visible { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
-
 .icon-eye {
   position: relative;
   z-index: 1;
   color: var(--md-sys-color-on-surface-variant);
   transition: color 200ms cubic-bezier(0.2, 0, 0, 1);
 }
-
-.hide-icon:hover .icon-eye {
-  color: var(--md-sys-color-on-surface);
-}
-
+.hide-icon:hover .icon-eye { color: var(--md-sys-color-on-surface); }
 .card-inner {
   background: var(--md-sys-color-surface-container);
   border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 15%, transparent);
@@ -284,48 +407,32 @@ onMounted(() => {
   padding: 24px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
-
 .income-expense {
   display: flex;
   align-items: stretch;
   margin-bottom: 24px;
 }
-
 .income-box, .expense-box {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
-.income-box {
-  text-align: left;
-  padding-right: 24px;
-}
-
-.expense-box {
-  text-align: right;
-  padding-left: 24px;
-}
-
+.income-box { text-align: left; padding-right: 24px; }
+.expense-box { text-align: right; padding-left: 24px; }
 .separator-line {
   width: 1px;
   background: linear-gradient(to bottom, transparent, var(--md-sys-color-outline-variant) 10%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-outline-variant) 10%, transparent);
   align-self: stretch;
   margin: 0 12px;
 }
-
 .income-label, .expense-label {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
 }
-
-.expense-label {
-  justify-content: flex-end;
-}
-
+.expense-label { justify-content: flex-end; }
 .label-text {
   font-size: 12px;
   line-height: 16px;
@@ -333,7 +440,6 @@ onMounted(() => {
   font-weight: 500;
   color: var(--md-sys-color-on-surface-variant);
 }
-
 .icon-badge {
   width: 26px;
   height: 26px;
@@ -344,15 +450,8 @@ onMounted(() => {
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
-
-.icon-income-color {
-  color: var(--md-sys-color-primary);
-}
-
-.icon-expense-color {
-  color: var(--md-sys-color-error);
-}
-
+.icon-income-color { color: var(--md-sys-color-primary); }
+.icon-expense-color { color: var(--md-sys-color-error); }
 .income-amount, .expense-amount {
   font-size: 22px;
   line-height: 28px;
@@ -363,14 +462,12 @@ onMounted(() => {
   display: flex;
   align-items: baseline;
 }
-
 .bottom-row {
   display: flex;
   align-items: center;
   width: 100%;
   margin-bottom: 20px;
 }
-
 .income-percent {
   flex: 1;
   font-size: 14px;
@@ -380,7 +477,6 @@ onMounted(() => {
   color: var(--md-sys-color-primary);
   text-align: left;
 }
-
 .vs-separator {
   position: relative;
   width: 44px;
@@ -391,7 +487,6 @@ onMounted(() => {
   flex-shrink: 0;
   margin: 0 8px;
 }
-
 .vs-separator::before {
   content: '';
   position: absolute;
@@ -401,7 +496,6 @@ onMounted(() => {
   width: 1px;
   background-color: var(--md-sys-color-outline-variant);
 }
-
 .vs-text {
   position: relative;
   z-index: 1;
@@ -415,7 +509,6 @@ onMounted(() => {
   padding: 2px 12px;
   border-radius: 6px;
 }
-
 .expense-percent {
   flex: 1;
   font-size: 14px;
@@ -425,7 +518,6 @@ onMounted(() => {
   color: var(--md-sys-color-error);
   text-align: right;
 }
-
 .progress-bar-container {
   display: flex;
   height: 10px;
@@ -434,7 +526,6 @@ onMounted(() => {
   overflow: hidden;
   box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.25);
 }
-
 .progress-fill {
   height: 100%;
   background: var(--md-sys-color-primary);
@@ -442,7 +533,6 @@ onMounted(() => {
   box-shadow: 0 0 8px color-mix(in srgb, var(--md-sys-color-primary) 40%, transparent);
   transition: width 800ms cubic-bezier(0.05, 0.7, 0.1, 1);
 }
-
 .progress-expense {
   height: 100%;
   background: var(--md-sys-color-error);
@@ -450,49 +540,26 @@ onMounted(() => {
   box-shadow: 0 0 8px color-mix(in srgb, var(--md-sys-color-error) 40%, transparent);
   transition: width 800ms cubic-bezier(0.05, 0.7, 0.1, 1) 100ms;
 }
-
-/* === Animasi munculnya nominal setelah loading === */
 .amount-reveal {
   animation: amountFadeIn 0.4s ease both;
 }
-
 @keyframes enterUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes amountFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 @media (max-width: 480px) {
-  .container {
-    padding: 16px;
-    padding-bottom: 120px;
-  }
-  .header-title {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  .total-saldo-amount {
-    font-size: 28px;
-    line-height: 36px;
-  }
-  .card {
-    padding: 20px;
-  }
-  .card-inner {
-    padding: 20px;
-  }
-  .income-amount, .expense-amount {
-    font-size: 18px;
-    line-height: 24px;
-  }
-  .icon-badge {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-  }
+  .container { padding: 16px; padding-bottom: 120px; }
+  .header-title { font-size: 28px; line-height: 36px; }
+  .total-saldo-amount { font-size: 28px; line-height: 36px; }
+  .card { padding: 20px; }
+  .card-inner { padding: 20px; }
+  .income-amount, .expense-amount { font-size: 18px; line-height: 24px; }
+  .icon-badge { width: 24px; height: 24px; border-radius: 6px; }
+  .skel-menu-grid { flex-wrap: wrap; }
+  .skel-menu-item { width: calc((100% - 24px) / 3); }
 }
 </style>
