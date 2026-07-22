@@ -1,3 +1,6 @@
+// app/composables/useFinanceStore.ts
+import { useBalance } from './useBalance'
+
 export interface WalletType {
   value: string
   label: string
@@ -46,43 +49,18 @@ export const useFinanceStore = () => {
 
   const transactions = useState<Transaction[]>('financeTransactions', () => [])
 
+  // ✅ Gunakan useBalance sebagai single source of truth
+  const { 
+    getBalance, 
+    setBalance, 
+    updateBalance, 
+    deleteBalance: deleteBalanceRecord,
+    totalBalance: totalBalanceComputed 
+  } = useBalance()
+
+  // ✅ getWalletBalance sekarang ambil dari localStorage
   const getWalletBalance = (walletId: number): number => {
-    return transactions.value
-      .filter(t => {
-        if (t.type === 'income' || t.type === 'expense') {
-          return t.walletId === walletId
-        }
-        if (t.type === 'transfer') {
-          return t.walletId === walletId || t.toWalletId === walletId
-        }
-        if (t.type === 'debt') {
-          return t.walletId === walletId || t.toWalletId === walletId
-        }
-        return false
-      })
-      .reduce((sum, t) => {
-        const amount = Number(t.amount) || 0
-        const totalDebt = Number(t.totalDebt) || 0
-
-        if (t.type === 'income') return sum + amount
-        if (t.type === 'expense') return sum - amount
-
-        if (t.type === 'transfer') {
-          if (t.walletId === walletId) return sum - amount
-          if (t.toWalletId === walletId) return sum + amount
-        }
-
-        if (t.type === 'debt') {
-          if (t.walletId === walletId) {
-            return sum - amount + (t.isPaid ? totalDebt : 0)
-          }
-          if (t.toWalletId === walletId) {
-            return sum + amount - (t.isPaid ? totalDebt : 0)
-          }
-        }
-
-        return sum
-      }, 0)
+    return getBalance(walletId)
   }
 
   const totalIncome = computed(() =>
@@ -97,18 +75,23 @@ export const useFinanceStore = () => {
       .reduce((sum, t) => sum + (Number(t.amount) || 0), 0)
   )
 
-  const totalBalance = computed(() => totalIncome.value - totalExpense.value)
+  // ✅ totalBalance sekarang dari localStorage
+  const totalBalance = totalBalanceComputed
 
-  const addWallet = (name: string, type: string = 'Cash') => {
-    wallets.value = [
-      ...wallets.value,
-      {
-        id: Date.now(),
-        name,
-        type,
-        isDefault: false
-      }
-    ]
+  const addWallet = (name: string, type: string = 'Cash', initialBalance: number = 0) => {
+    const newWallet = {
+      id: Date.now(),
+      name,
+      type,
+      isDefault: false
+    }
+    
+    wallets.value = [...wallets.value, newWallet]
+    
+    // ✅ Set balance awal
+    if (initialBalance !== 0) {
+      setBalance(newWallet.id, initialBalance)
+    }
   }
 
   const renameWallet = (id: number, name: string) => {
@@ -126,6 +109,8 @@ export const useFinanceStore = () => {
   const deleteWallet = (id: number) => {
     wallets.value = wallets.value.filter(w => w.id !== id)
     transactions.value = transactions.value.filter(t => t.walletId !== id && t.toWalletId !== id)
+    // ✅ Hapus balance record
+    deleteBalanceRecord(id)
   }
 
   const setDefaultWallet = (id: number) => {
@@ -135,24 +120,77 @@ export const useFinanceStore = () => {
     }))
   }
 
-  const addTransaction = (data: any) => {
-    transactions.value = [
-      ...transactions.value,
-      {
-        id: Date.now(),
-        ...data,
-        createdAt: new Date().toISOString()
+  const addTransaction = (data: Omit<Transaction, 'id' | 'createdAt'>) => {
+    const newTransaction = {
+      id: Date.now(),
+      ...data,
+      createdAt: new Date().toISOString()
+    }
+    
+    transactions.value = [...transactions.value, newTransaction]
+    
+    // ✅ Update balance berdasarkan tipe transaksi
+    const amount = Number(data.amount) || 0
+    
+    if (data.type === 'income') {
+      updateBalance(data.walletId, amount)
+    } else if (data.type === 'expense') {
+      updateBalance(data.walletId, -amount)
+    } else if (data.type === 'transfer') {
+      updateBalance(data.walletId, -amount)
+      if (data.toWalletId) {
+        updateBalance(data.toWalletId, amount)
       }
-    ]
+    } else if (data.type === 'debt') {
+      // Debt: kurangi dari wallet pemberi
+      updateBalance(data.walletId, -amount)
+      // Tambah ke wallet peminjam (jika ada)
+      if (data.toWalletId) {
+        updateBalance(data.toWalletId, amount)
+      }
+    }
   }
 
   const deleteTransaction = (id: number) => {
+    const transaction = transactions.value.find(t => t.id === id)
+    
+    if (transaction) {
+      // ✅ Reverse balance saat transaksi dihapus
+      const amount = Number(transaction.amount) || 0
+      
+      if (transaction.type === 'income') {
+        updateBalance(transaction.walletId, -amount)
+      } else if (transaction.type === 'expense') {
+        updateBalance(transaction.walletId, amount)
+      } else if (transaction.type === 'transfer') {
+        updateBalance(transaction.walletId, amount)
+        if (transaction.toWalletId) {
+          updateBalance(transaction.toWalletId, -amount)
+        }
+      } else if (transaction.type === 'debt') {
+        updateBalance(transaction.walletId, amount)
+        if (transaction.toWalletId) {
+          updateBalance(transaction.toWalletId, -amount)
+        }
+      }
+    }
+    
     transactions.value = transactions.value.filter(t => t.id !== id)
   }
 
   const payDebt = (debtId: number) => {
     transactions.value = transactions.value.map(t => {
       if (t.id === debtId && t.type === 'debt' && !t.isPaid) {
+        // ✅ Update balance saat debt dibayar
+        const totalDebt = Number(t.totalDebt) || 0
+        
+        // Kurangi dari wallet peminjam
+        if (t.toWalletId) {
+          updateBalance(t.toWalletId, -totalDebt)
+        }
+        // Kembalikan ke wallet pemberi
+        updateBalance(t.walletId, totalDebt)
+        
         return {
           ...t,
           isPaid: true,
@@ -161,6 +199,11 @@ export const useFinanceStore = () => {
       }
       return t
     })
+  }
+
+  // ✅ Tambah fungsi untuk set balance manual (dari owner/local-data)
+  const setWalletBalanceManual = (walletId: number, amount: number) => {
+    setBalance(walletId, amount)
   }
 
   const defaultWalletId = computed(() => {
@@ -183,6 +226,7 @@ export const useFinanceStore = () => {
     addTransaction,
     deleteTransaction,
     payDebt,
-    defaultWalletId
+    defaultWalletId,
+    setWalletBalanceManual  // ✅ Expose untuk owner/local-data
   }
 }

@@ -1,3 +1,4 @@
+// app/plugins/persisted-state.client.ts
 import { walletTypes } from '~/composables/useFinanceStore'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -7,7 +8,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     'navOwnerCenter',
     'isBalanceHidden',
     'financeWallets',
-    'financeTransactions'
+    'financeTransactions',
+    'financeBalances'  // ✅ Tambahkan key untuk balance
   ]
 
   const applyState = (key: string, savedData: string) => {
@@ -42,6 +44,18 @@ export default defineNuxtPlugin((nuxtApp) => {
         useState(key).value = normalized
       } catch {
         useState(key).value = JSON.parse(savedData)
+      }
+    } else if (key === 'financeBalances') {
+      // ✅ Normalisasi balance
+      try {
+        const parsed = JSON.parse(savedData)
+        const normalized: Record<number, number> = {}
+        Object.keys(parsed).forEach(walletId => {
+          normalized[Number(walletId)] = Number(parsed[walletId]) || 0
+        })
+        useState(key).value = normalized
+      } catch {
+        useState(key).value = {}
       }
     } else {
       try {
