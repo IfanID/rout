@@ -1,6 +1,4 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-
 const { t } = useI18n()
 const { totalBalance, totalIncome, totalExpense } = useFinanceStore()
 
@@ -53,50 +51,15 @@ onMounted(() => {
 
 <template>
   <div class="container">
-    <!-- ========== SKELETON ========== -->
-    <template v-if="!isMounted">
-      <div class="header">
-        <div class="skel-line skel-line--greeting"></div>
-        <div class="skel-line skel-line--title"></div>
-      </div>
-      <div class="card skel-card">
-        <div class="skel-saldo-area">
-          <div class="skel-line skel-line--label"></div>
-          <div class="skel-line skel-line--amount"></div>
-        </div>
-        <div class="card-inner">
-          <div class="skel-row">
-            <div class="skel-col">
-              <div class="skel-line skel-line--sm"></div>
-              <div class="skel-line skel-line--md"></div>
-            </div>
-            <div class="skel-divider"></div>
-            <div class="skel-col skel-col--right">
-              <div class="skel-line skel-line--sm"></div>
-              <div class="skel-line skel-line--md"></div>
-            </div>
-          </div>
-          <div class="skel-row skel-row--bottom">
-            <div class="skel-line skel-line--xs"></div>
-            <div class="skel-vs"></div>
-            <div class="skel-line skel-line--xs"></div>
-          </div>
-          <div class="skel-progress"></div>
-        </div>
-      </div>
-      <div class="skel-menu-card">
-        <div class="skel-line skel-line--menu-title"></div>
-        <div class="skel-menu-grid">
-          <div v-for="i in 5" :key="i" class="skel-menu-item">
-            <div class="skel-menu-icon"></div>
-            <div class="skel-line skel-line--menu-label"></div>
-          </div>
-        </div>
-      </div>
-    </template>
+    <!-- ========== SKELETON LOADING (Universal) ========== -->
+    <SkeletonAppSkeletonLoader
+      :show="!isMounted"
+      size="md"
+      fullscreen
+    />
 
     <!-- ========== KONTEN ASLI ========== -->
-    <template v-else>
+    <template v-if="isMounted">
       <header class="header">
         <p class="header-greeting">{{ t('pages.finance.index.greeting') }}</p>
         <h1 class="header-title">Juni 2026</h1>
@@ -190,110 +153,6 @@ onMounted(() => {
   color: var(--md-sys-color-on-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* ========== SKELETON ========== */
-.skel-line {
-  height: 14px;
-  border-radius: 7px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-line--greeting { width: 40%; height: 16px; margin-bottom: 8px; }
-.skel-line--title { width: 35%; height: 36px; border-radius: 18px; }
-.skel-line--label { width: 30%; height: 12px; margin-bottom: 10px; }
-.skel-line--amount { width: 65%; height: 36px; border-radius: 18px; }
-.skel-line--sm { width: 50%; height: 12px; margin-bottom: 10px; }
-.skel-line--md { width: 70%; height: 24px; border-radius: 12px; }
-.skel-line--xs { width: 30%; height: 14px; }
-.skel-line--menu-title { width: 25%; height: 12px; margin-bottom: 16px; }
-.skel-line--menu-label { width: 70%; height: 12px; }
-
-.skel-card {
-  pointer-events: none;
-}
-.skel-saldo-area {
-  margin-bottom: 24px;
-  padding-right: 64px;
-}
-.skel-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 0;
-  margin-bottom: 24px;
-}
-.skel-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-right: 24px;
-}
-.skel-col--right {
-  padding-right: 0;
-  padding-left: 24px;
-  align-items: flex-end;
-}
-.skel-divider {
-  width: 1px;
-  height: 50px;
-  background: var(--md-sys-color-outline-variant);
-  margin: 0 12px;
-  align-self: center;
-  flex-shrink: 0;
-}
-.skel-row--bottom {
-  align-items: center;
-  margin-bottom: 20px;
-}
-.skel-vs {
-  width: 44px;
-  height: 30px;
-  border-radius: 6px;
-  background-color: var(--md-sys-color-surface-variant);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  margin: 0 8px;
-  flex-shrink: 0;
-}
-.skel-progress {
-  height: 10px;
-  border-radius: 9999px;
-  background-color: var(--md-sys-color-surface-variant);
-  box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.25);
-}
-.skel-menu-card {
-  margin-top: 24px;
-  padding: 24px;
-  border-radius: 28px;
-  background-color: color-mix(in srgb, var(--md-sys-color-surface-container) 96%, var(--md-sys-color-primary) 4%);
-  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 20%, transparent);
-}
-.skel-menu-grid {
-  display: flex;
-  gap: 12px;
-}
-.skel-menu-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 8px;
-  background-color: var(--md-sys-color-surface-variant);
-  border-radius: 20px;
-}
-.skel-menu-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-
-@keyframes skel-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 /* ========== KONTEN ASLI ========== */
@@ -559,7 +418,5 @@ onMounted(() => {
   .card-inner { padding: 20px; }
   .income-amount, .expense-amount { font-size: 18px; line-height: 24px; }
   .icon-badge { width: 24px; height: 24px; border-radius: 6px; }
-  .skel-menu-grid { flex-wrap: wrap; }
-  .skel-menu-item { width: calc((100% - 24px) / 3); }
 }
 </style>
