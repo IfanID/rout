@@ -5,12 +5,16 @@
  * Komponen Skeleton Loading universal untuk seluruh aplikasi.
  * Menampilkan logo aplikasi (rout.png - 1000×1000px) di dalam lingkaran
  * dengan animasi halus. Mendukung Light Mode & Dark Mode otomatis.
+ * Label menggunakan i18n (ui.loading).
  *
  * @example
  * <SkeletonAppSkeletonLoader :show="loading" fullscreen />
  * <SkeletonAppSkeletonLoader :show="loading" size="sm" overlay />
+ * <SkeletonAppSkeletonLoader :show="loading" label="Menyimpan..." />
  */
-defineProps({
+const { t } = useI18n()
+
+const props = defineProps({
   show: {
     type: Boolean,
     default: false,
@@ -28,8 +32,17 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  label: {
+    type: String,
+    default: '',
+  },
 })
 
+const displayLabel = computed(() => {
+  return props.label || t('ui.loading')
+})
+
+// Dimensi dioptimalkan untuk logo SQUARE 1000×1000px
 const sizeMap = {
   sm: {
     circle: 80,
@@ -78,7 +91,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
     >
       <div class="app-skeleton__content">
         <div class="app-skeleton__wrapper">
-          <!-- Glow (tanpa blur berlebihan, subtle saja) -->
+          <!-- Glow -->
           <div
             class="app-skeleton__glow"
             :style="{
@@ -88,7 +101,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
             }"
           ></div>
 
-          <!-- Orbit dots (3 titik kecil mengitari) -->
+          <!-- Orbit dots -->
           <div
             class="app-skeleton__orbit"
             :style="{
@@ -146,14 +159,14 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
           </div>
         </div>
 
-        <!-- Pulse dots + label di bawah -->
+        <!-- Footer: dots + label -->
         <div class="app-skeleton__footer">
           <div class="app-skeleton__dots">
             <span class="app-skeleton__dot"></span>
             <span class="app-skeleton__dot"></span>
             <span class="app-skeleton__dot"></span>
           </div>
-          <span class="app-skeleton__label">Memuat</span>
+          <span class="app-skeleton__label">{{ displayLabel }}</span>
         </div>
       </div>
     </div>
@@ -194,7 +207,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
 }
 
 /* ============================================ */
-/* CONTENT (vertical layout)                    */
+/* CONTENT                                      */
 /* ============================================ */
 .app-skeleton__content {
   display: flex;
@@ -291,7 +304,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
 }
 
 /* ============================================ */
-/* GLOW (subtle, no heavy blur)                 */
+/* GLOW                                         */
 /* ============================================ */
 .app-skeleton__glow {
   position: absolute;
@@ -308,7 +321,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
 }
 
 /* ============================================ */
-/* ORBIT DOTS (3 titik mengitari lingkaran)     */
+/* ORBIT DOTS                                   */
 /* ============================================ */
 .app-skeleton__orbit {
   position: absolute;
@@ -341,7 +354,7 @@ const getSizeConfig = (size) => sizeMap[size] || sizeMap.md
 }
 
 /* ============================================ */
-/* FOOTER (dots + label)                        */
+/* FOOTER                                       */
 /* ============================================ */
 .app-skeleton__footer {
   display: flex;

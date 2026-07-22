@@ -90,58 +90,15 @@ onMounted(() => {
 
 <template>
   <div class="debt-page">
-    <!-- ========== SKELETON ========== -->
-    <template v-if="!isMounted">
-      <div class="page-header">
-        <div class="header-left">
-          <div class="skel-line skel-line--title"></div>
-          <div class="skel-line skel-line--subtitle"></div>
-        </div>
-      </div>
-      <div class="summary-row">
-        <div class="summary-card skel-summary">
-          <div class="skel-summary-icon"></div>
-          <div class="skel-summary-texts">
-            <div class="skel-line skel-line--xs"></div>
-            <div class="skel-line skel-line--amount-sm"></div>
-          </div>
-        </div>
-        <div class="summary-card skel-summary">
-          <div class="skel-summary-icon"></div>
-          <div class="skel-summary-texts">
-            <div class="skel-line skel-line--xs"></div>
-            <div class="skel-line skel-line--amount-sm"></div>
-          </div>
-        </div>
-      </div>
-      <div v-for="i in 2" :key="i" class="skel-debt-card">
-        <div class="skel-debt-header">
-          <div class="skel-debt-left">
-            <div class="skel-debt-icon"></div>
-            <div class="skel-debt-texts">
-              <div class="skel-line skel-line--name"></div>
-              <div class="skel-line skel-line--date"></div>
-            </div>
-          </div>
-          <div class="skel-debt-total">
-            <div class="skel-line skel-line--xs"></div>
-            <div class="skel-line skel-line--amount-sm"></div>
-          </div>
-        </div>
-        <div class="skel-debt-route">
-          <div class="skel-chip"></div>
-          <div class="skel-chip-arrow"></div>
-          <div class="skel-chip"></div>
-        </div>
-        <div class="skel-debt-bottom">
-          <div class="skel-line skel-line--breakdown"></div>
-          <div class="skel-pay-btn"></div>
-        </div>
-      </div>
-    </template>
+    <!-- ========== SKELETON LOADING (Universal) ========== -->
+    <SkeletonAppSkeletonLoader
+      :show="!isMounted"
+      size="md"
+      fullscreen
+    />
 
     <!-- ========== KONTEN ASLI ========== -->
-    <template v-else>
+    <template v-if="isMounted">
       <div class="page-header">
         <div class="header-left">
           <h1 class="page-title">{{ t('pages.finance.debt.title') }}</h1>
@@ -341,124 +298,6 @@ onMounted(() => {
   color: var(--md-sys-color-on-surface);
   background-color: var(--md-sys-color-surface);
   position: relative;
-}
-
-/* ========== SKELETON ========== */
-.skel-line {
-  height: 14px;
-  border-radius: 7px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-line--title { width: 40%; height: 28px; border-radius: 14px; margin-bottom: 6px; }
-.skel-line--subtitle { width: 50%; }
-.skel-line--xs { width: 40%; height: 10px; border-radius: 5px; margin-bottom: 6px; }
-.skel-line--amount-sm { width: 70%; height: 20px; border-radius: 10px; }
-.skel-line--name { width: 50%; height: 16px; border-radius: 8px; margin-bottom: 6px; }
-.skel-line--date { width: 35%; height: 12px; border-radius: 6px; }
-.skel-line--breakdown { width: 45%; height: 14px; border-radius: 7px; }
-
-.skel-summary {
-  pointer-events: none;
-}
-.skel-summary-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-summary-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-}
-
-.skel-debt-card {
-  background-color: var(--md-sys-color-surface-container);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
-  padding: 22px;
-  margin-bottom: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.skel-debt-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-.skel-debt-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.skel-debt-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-debt-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.skel-debt-total {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-}
-.skel-debt-route {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  background-color: var(--md-sys-color-surface-variant);
-  border-radius: 14px;
-}
-.skel-chip {
-  flex: 1;
-  height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-chip-arrow {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--md-sys-color-outline-variant);
-  flex-shrink: 0;
-}
-.skel-debt-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.skel-pay-btn {
-  width: 100%;
-  height: 48px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-  flex-shrink: 0;
-  width: 120px;
-}
-
-@keyframes skel-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 /* ========== HEADER ========== */

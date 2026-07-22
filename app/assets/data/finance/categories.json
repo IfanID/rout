@@ -1,0 +1,44 @@
+{
+  "income": [
+    { "id": "salary",     "labelKey": "categories.income.salary",     "icon": "mdi:cash-check",       "color": "#34d399", "order": 1 },
+    { "id": "freelance",  "labelKey": "categories.income.freelance",  "icon": "mdi:laptop",           "color": "#2dd4bf", "order": 2 },
+    { "id": "investment", "labelKey": "categories.income.investment", "icon": "mdi:trending-up",      "color": "#4ade80", "order": 3 },
+    { "id": "gift_in",    "labelKey": "categories.income.gift",       "icon": "mdi:gift-outline",     "color": "#86efac", "order": 4 },
+    { "id": "other_in",   "labelKey": "categories.income.other",      "icon": "mdi:dots-horizontal",  "color": "#9ca3af", "order": 99 }
+  ],
+
+  "expense": [
+    { "id": "food",          "labelKey": "categories.expense.food",          "icon": "mdi:food",                    "color": "#fb923c", "order": 1,  "group": "food_drink" },
+    { "id": "coffee",        "labelKey": "categories.expense.coffee",        "icon": "mdi:coffee",                  "color": "#d97706", "order": 2,  "group": "food_drink" },
+    { "id": "transport",     "labelKey": "categories.expense.transport",     "icon": "mdi:car",                     "color": "#60a5fa", "order": 10, "group": "transport" },
+    { "id": "fuel",          "labelKey": "categories.expense.fuel",          "icon": "mdi:gas-station-outline",     "color": "#f97316", "order": 11, "group": "transport" },
+    { "id": "shopping",      "labelKey": "categories.expense.shopping",      "icon": "mdi:shopping-outline",        "color": "#f472b6", "order": 20, "group": "shopping" },
+    { "id": "clothing",      "labelKey": "categories.expense.clothing",      "icon": "mdi:tshirt-crew-outline",     "color": "#ec4899", "order": 21, "group": "shopping" },
+    { "id": "housing",       "labelKey": "categories.expense.housing",       "icon": "mdi:home-outline",            "color": "#fbbf24", "order": 30, "group": "housing" },
+    { "id": "bills",         "labelKey": "categories.expense.bills",         "icon": "mdi:file-document-outline",   "color": "#c084fc", "order": 31, "group": "utilities" },
+    { "id": "electricity",   "labelKey": "categories.expense.electricity",   "icon": "mdi:lightning-bolt",          "color": "#fcd34d", "order": 32, "group": "utilities" },
+    { "id": "water",         "labelKey": "categories.expense.water",         "icon": "mdi:water-outline",           "color": "#38bdf8", "order": 33, "group": "utilities" },
+    { "id": "pulsa",         "labelKey": "categories.expense.pulsa",         "icon": "mdi:cellphone",               "color": "#22d3ee", "order": 40, "group": "digital" },
+    { "id": "internet",      "labelKey": "categories.expense.internet",      "icon": "mdi:wifi",                    "color": "#06b6d4", "order": 41, "group": "digital" },
+    { "id": "subscription",  "labelKey": "categories.expense.subscription",  "icon": "mdi:play-circle-outline",     "color": "#a78bfa", "order": 42, "group": "digital" },
+    { "id": "entertainment", "labelKey": "categories.expense.entertainment", "icon": "mdi:movie-open-outline",      "color": "#34d399", "order": 50, "group": "entertainment" },
+    { "id": "game",          "labelKey": "categories.expense.game",          "icon": "mdi:gamepad-variant-outline", "color": "#8b5cf6", "order": 51, "group": "entertainment" },
+    { "id": "steam",         "labelKey": "categories.expense.steam",         "icon": "mdi:steam",                   "color": "#1e40af", "order": 52, "group": "entertainment" },
+    { "id": "health",        "labelKey": "categories.expense.health",        "icon": "mdi:heart-pulse",             "color": "#f87171", "order": 60, "group": "health" },
+    { "id": "beauty",        "labelKey": "categories.expense.beauty",        "icon": "mdi:spa-outline",             "color": "#fb7185", "order": 61, "group": "health" },
+    { "id": "education",     "labelKey": "categories.expense.education",     "icon": "mdi:school-outline",          "color": "#10b981", "order": 70, "group": "education" },
+    { "id": "books",         "labelKey": "categories.expense.books",         "icon": "mdi:book-open-variant",       "color": "#059669", "order": 71, "group": "education" },
+    { "id": "other_out",     "labelKey": "categories.expense.other",         "icon": "mdi:dots-horizontal",         "color": "#9ca3af", "order": 999 }
+  ],
+
+  "transfer": [
+    { "id": "wallet_transfer", "labelKey": "categories.transfer.wallet", "icon": "mdi:swap-horizontal",  "color": "#60a5fa", "order": 1 },
+    { "id": "other_transfer",  "labelKey": "categories.transfer.other",  "icon": "mdi:dots-horizontal",  "color": "#9ca3af", "order": 99 }
+  ],
+
+  "debt": [
+    { "id": "loan",        "labelKey": "categories.debt.loan",        "icon": "mdi:hand-coin-outline", "color": "#fbbf24", "fine": 5, "order": 1 },
+    { "id": "installment", "labelKey": "categories.debt.installment", "icon": "mdi:calendar-clock",    "color": "#fcd34d", "fine": 3, "order": 2 },
+    { "id": "other_debt",  "labelKey": "categories.debt.other",       "icon": "mdi:dots-horizontal",   "color": "#9ca3af", "fine": 0, "order": 99 }
+  ]
+}

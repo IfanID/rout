@@ -132,14 +132,22 @@ onMounted(() => {
 
 <template>
   <div class="wallets-page">
-    <div class="page-header">
-      <h1 class="page-title">{{ t('pages.finance.wallets.title') }}</h1>
-      <button class="add-icon-wrapper" :title="t('pages.finance.wallets.add')" @click="openAddDialog">
-        <Icon name="mdi:plus" size="24" class="add-icon" />
-      </button>
-    </div>
+    <!-- ========== SKELETON LOADING (Universal) ========== -->
+    <SkeletonAppSkeletonLoader
+      :show="!isMounted"
+      size="md"
+      fullscreen
+    />
 
+    <!-- ========== KONTEN ASLI ========== -->
     <template v-if="isMounted">
+      <div class="page-header">
+        <h1 class="page-title">{{ t('pages.finance.wallets.title') }}</h1>
+        <button class="add-icon-wrapper" :title="t('pages.finance.wallets.add')" @click="openAddDialog">
+          <Icon name="mdi:plus" size="24" class="add-icon" />
+        </button>
+      </div>
+
       <FinanceWalletCard
         v-for="wallet in walletsDisplay"
         :key="wallet.id"
@@ -155,25 +163,7 @@ onMounted(() => {
       />
     </template>
 
-    <template v-else>
-      <div
-        v-for="i in Math.max(walletsDisplay.length, 1)"
-        :key="'skel-' + i"
-        class="wallet-skeleton"
-      >
-        <div class="skel-header">
-          <div class="skel-icon"></div>
-          <div class="skel-texts">
-            <div class="skel-line skel-line--name"></div>
-            <div class="skel-line skel-line--type"></div>
-          </div>
-        </div>
-        <div class="skel-balance">
-          <div class="skel-line skel-line--balance"></div>
-        </div>
-      </div>
-    </template>
-
+    <!-- ========== DIALOG FORM ========== -->
     <div v-if="showFormDialog" class="form-overlay" @click.self="showFormDialog = false">
       <div class="form-box" @click.stop>
         <h3 class="form-title">
@@ -291,59 +281,6 @@ onMounted(() => {
 }
 .add-icon {
   color: var(--md-sys-color-primary);
-}
-.wallet-skeleton {
-  background-color: var(--md-sys-color-surface-container);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 24px;
-  padding: 24px;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.skel-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.skel-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background-color: var(--md-sys-color-surface-variant);
-  border: 1px solid var(--md-sys-color-outline-variant);
-}
-.skel-texts {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-.skel-line {
-  height: 14px;
-  border-radius: 7px;
-  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
-  background-size: 200% 100%;
-  animation: skel-shimmer 1.5s infinite;
-}
-.skel-line--name {
-  width: 40%;
-}
-.skel-line--type {
-  width: 25%;
-}
-.skel-balance {
-  padding-top: 8px;
-}
-.skel-line--balance {
-  width: 60%;
-  height: 28px;
-  border-radius: 14px;
-}
-@keyframes skel-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 .form-overlay {
   position: fixed;
