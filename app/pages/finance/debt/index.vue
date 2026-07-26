@@ -1,5 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useFinanceStore } from '~/composables/finance/useFinanceStore'
+import { useFinanceCategories } from '~/composables/finance/useFinanceCategories'
+import { useNotification } from '~/composables/shared/useNotification'
 
 const { t } = useI18n()
 const { transactions, wallets, getWalletBalance, payDebt } = useFinanceStore()
@@ -161,21 +164,21 @@ const cancelEditTarget = () => {
 
 const saveTargetDate = (debt) => {
   if (!editTargetValue.value) {
-    showToast('Pilih tanggal target terlebih dahulu', 'error')
+    showToast(t('pages.finance.debt.select_target_date'), 'error')
     return
   }
   const newDate = new Date(editTargetValue.value)
   const createdDate = new Date(debt.createdAt)
 
   if (newDate.getTime() <= createdDate.getTime()) {
-    showToast('Target pembayaran harus setelah tanggal dibuat', 'error')
+    showToast(t('pages.finance.debt.target_set_after_created'), 'error')
     return
   }
 
   const idx = transactions.value.findIndex(t => t.id === debt.id)
   if (idx !== -1) {
     transactions.value[idx] = { ...transactions.value[idx], targetDate: newDate.toISOString() }
-    showToast('Target pembayaran berhasil diperbarui', 'success')
+    showToast(t('pages.finance.debt.target_updated'), 'success')
   }
   cancelEditTarget()
 }
@@ -185,7 +188,7 @@ const resetTargetToDefault = (debt) => {
   if (idx !== -1) {
     const { targetDate, ...rest } = transactions.value[idx]
     transactions.value[idx] = rest
-    showToast('Target dikembalikan ke default (1 bulan)', 'success')
+    showToast(t('pages.finance.debt.target_reset'), 'success')
   }
   cancelEditTarget()
 }
@@ -216,13 +219,13 @@ const confirmPay = () => {
   if (selectedDebt.value) {
     const borrowerBalance = getWalletBalance(selectedDebt.value.toWalletId)
     if (borrowerBalance < (selectedDebt.value.totalDebt || 0)) {
-      showToast('Saldo dompet peminjam tidak mencukupi untuk membayar hutang!', 'error')
+      showToast(t('pages.finance.debt.insufficient_balance'), 'error')
       return
     }
     payDebt(selectedDebt.value.id)
     showPayDialog.value = false
     selectedDebt.value = null
-    showToast('Pembayaran berhasil', 'success')
+    showToast(t('pages.finance.debt.payment_success'), 'success')
   }
 }
 
@@ -352,14 +355,14 @@ const cancelPay = () => {
               <div class="target-date-info">
                 <div class="target-info-header">
                   <Icon name="mdi:calendar-plus" size="14" class="target-info-icon" />
-                  <span class="target-info-label">Dibuat</span>
+                  <span class="target-info-label">{{ t('pages.finance.debt.created') }}</span>
                 </div>
                 <div class="target-info-main">
                   {{ parseDateParts(debt.createdAt)?.weekday }}, {{ parseDateParts(debt.createdAt)?.monthFull }} {{ parseDateParts(debt.createdAt)?.year }}
                 </div>
                 <div class="target-info-time">
                   <Icon name="mdi:clock-outline" size="12" />
-                  <span>Pukul {{ parseDateParts(debt.createdAt)?.time }}</span>
+                  <span>{{ t('pages.finance.debt.at_time') }} {{ parseDateParts(debt.createdAt)?.time }}</span>
                 </div>
               </div>
             </div>
@@ -382,16 +385,16 @@ const cancelPay = () => {
               <div class="target-date-info">
                 <div class="target-info-header">
                   <Icon name="mdi:calendar-refresh" size="14" class="target-info-icon target-info-icon--accent" />
-                  <span class="target-info-label">Target Pembayaran</span>
+                  <span class="target-info-label">{{ t('pages.finance.debt.payment_target') }}</span>
                   <span v-if="isCustomTarget(debt)" class="target-custom-badge">
                     <Icon name="mdi:pencil-circle" size="10" />
-                    Kustom
+                    {{ t('pages.finance.debt.custom') }}
                   </span>
                   <button
                     v-if="editingDebtId !== debt.id"
                     class="target-edit-trigger"
                     @click="startEditTarget(debt)"
-                    title="Ubah target"
+                    :title="t('pages.finance.debt.change_target')"
                   >
                     <Icon name="mdi:pencil-outline" size="14" />
                   </button>
@@ -404,7 +407,7 @@ const cancelPay = () => {
                   </div>
                   <div class="target-info-time">
                     <Icon name="mdi:clock-outline" size="12" />
-                    <span>Pukul {{ parseDateParts(getTargetDate(debt))?.time }}</span>
+                    <span>{{ t('pages.finance.debt.at_time') }} {{ parseDateParts(getTargetDate(debt))?.time }}</span>
                   </div>
                 </template>
 
@@ -421,13 +424,13 @@ const cancelPay = () => {
                       />
                     </div>
                     <div class="edit-compact-actions">
-                      <button class="compact-btn compact-btn--reset" @click="resetTargetToDefault(debt)" title="Reset default">
+                      <button class="compact-btn compact-btn--reset" @click="resetTargetToDefault(debt)" :title="t('pages.finance.debt.reset_default')">
                         <Icon name="mdi:refresh" size="14" />
                       </button>
-                      <button class="compact-btn compact-btn--cancel" @click="cancelEditTarget" title="Batal">
+                      <button class="compact-btn compact-btn--cancel" @click="cancelEditTarget" :title="t('ui.cancel')">
                         <Icon name="mdi:close" size="14" />
                       </button>
-                      <button class="compact-btn compact-btn--save" @click="saveTargetDate(debt)" title="Simpan">
+                      <button class="compact-btn compact-btn--save" @click="saveTargetDate(debt)" :title="t('ui.save')">
                         <Icon name="mdi:check" size="14" />
                       </button>
                     </div>
@@ -499,15 +502,15 @@ const cancelPay = () => {
                     </span>
                     <div class="history-timeline">
                       <div class="history-timeline-row">
-                        <span class="history-timeline-label">Dibuat</span>
+                        <span class="history-timeline-label">{{ t('pages.finance.debt.created') }}</span>
                         <span class="history-timeline-value">{{ formatDateShort(debt.createdAt) }}</span>
                       </div>
                       <div class="history-timeline-row">
-                        <span class="history-timeline-label">Target</span>
+                        <span class="history-timeline-label">{{ t('pages.finance.debt.target') }}</span>
                         <span class="history-timeline-value">{{ formatDateShort(getTargetDate(debt)) }}</span>
                       </div>
                       <div class="history-timeline-row">
-                        <span class="history-timeline-label">Dilunasi</span>
+                        <span class="history-timeline-label">{{ t('pages.finance.debt.settled') }}</span>
                         <span class="history-timeline-value">{{ formatDateShort(debt.paidAt) }}</span>
                       </div>
                     </div>
@@ -520,10 +523,10 @@ const cancelPay = () => {
                         size="14"
                       />
                       <span v-if="!getSettlementInfo(debt).isOverdue">
-                        Lunas dalam {{ getSettlementInfo(debt).totalDays }} Hari
+                        {{ t('pages.finance.debt.paid_in_days', [getSettlementInfo(debt).totalDays]) }}
                       </span>
                       <span v-else>
-                        Melewati target {{ getSettlementInfo(debt).overdueDays }} Hari sebelum dilunasi
+                        {{ t('pages.finance.debt.exceeded_target_days', [getSettlementInfo(debt).overdueDays]) }}
                       </span>
                     </div>
                   </div>
@@ -551,8 +554,8 @@ const cancelPay = () => {
                 <Icon name="mdi:cash-check" size="28" />
               </div>
               <div class="pay-dialog-title-group">
-                <h3 class="pay-dialog-title">Konfirmasi Pembayaran</h3>
-                <p class="pay-dialog-subtitle">Pastikan data di bawah sudah benar sebelum melanjutkan</p>
+                <h3 class="pay-dialog-title">{{ t('pages.finance.debt.confirm_payment') }}</h3>
+                <p class="pay-dialog-subtitle">{{ t('pages.finance.debt.confirm_payment_desc') }}</p>
               </div>
             </div>
             <div class="pay-dialog-body">
@@ -561,27 +564,27 @@ const cancelPay = () => {
                 <span class="pay-detail-value">Rp {{ formatRupiah(selectedDebt.amount) }}</span>
               </div>
               <div v-if="selectedDebt.fineAmount > 0" class="pay-detail-row">
-                <span class="pay-detail-label">Denda ({{ selectedDebt.finePercent }}%)</span>
+                <span class="pay-detail-label">{{ t('pages.finance.debt.fine') }} ({{ selectedDebt.finePercent }}%)</span>
                 <span class="pay-detail-value fine-color">Rp {{ formatRupiah(selectedDebt.fineAmount) }}</span>
               </div>
               <div class="pay-detail-row pay-detail-total">
-                <span class="pay-detail-label">Total Bayar</span>
+                <span class="pay-detail-label">{{ t('pages.finance.debt.total_pay') }}</span>
                 <span class="pay-detail-value pay-total-value">Rp {{ formatRupiah(selectedDebt.totalDebt) }}</span>
               </div>
               <div class="pay-detail-wallet">
                 <Icon name="mdi:wallet-outline" size="16" />
-                <span>Dari Dompet: <strong>{{ getWalletName(selectedDebt.toWalletId) }}</strong></span>
-                <span class="wallet-current-balance">Saldo: Rp {{ formatRupiah(getWalletBalance(selectedDebt.toWalletId)) }}</span>
+                <span>{{ t('pages.finance.debt.from_wallet') }} <strong>{{ getWalletName(selectedDebt.toWalletId) }}</strong></span>
+                <span class="wallet-current-balance">{{ t('pages.finance.debt.balance') }}: Rp {{ formatRupiah(getWalletBalance(selectedDebt.toWalletId)) }}</span>
               </div>
             </div>
             <div class="pay-dialog-actions">
               <button class="pay-dialog-btn pay-dialog-btn--cancel" @click="cancelPay">
                 <Icon name="mdi:close-circle-outline" size="18" />
-                <span>Batal</span>
+                <span>{{ t('ui.cancel') }}</span>
               </button>
               <button class="pay-dialog-btn pay-dialog-btn--confirm" @click="confirmPay">
                 <Icon name="mdi:check-circle" size="18" />
-                <span>Ya, Bayar Sekarang</span>
+                <span>{{ t('pages.finance.debt.yes_pay_now') }}</span>
               </button>
             </div>
           </div>

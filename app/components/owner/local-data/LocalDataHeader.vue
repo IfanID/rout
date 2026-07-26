@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import { useLocalData } from '~/composables/owner/useLocalData'
+
 const {
   t, stats, triggerImport, exportToJSON, showDeleteAllDialog
 } = useLocalData()

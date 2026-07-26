@@ -1,43 +1,27 @@
-<script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useSettingsDropdown } from '~/composables/shared/useSettingsDropdown'
 
-const { t, locale, locales, setLocale } = useI18n()
+const { t } = useI18n()
 
-// === DROPDOWN BAHASA ===
 const {
-  isLangDropdownOpen,
-  toggleLangDropdown,
-  closeLangDropdown
-} = useLanguage()
-
-const availableLocales = computed(() => {
-  return locales.value.map(l => (typeof l === 'object' ? l : { code: l, name: l }))
-})
-
-const currentLocaleName = computed(() => {
-  const active = availableLocales.value.find(l => l.code === locale.value)
-  return active ? active.name : 'Unknown'
-})
-
-const changeLanguage = (code) => {
-  setLocale(code)
-  isLangDropdownOpen.value = false
-}
-
-// === COLOR MODE TOGGLE ===
-const colorMode = useColorMode()
-const toggleTheme = () => {
-  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-}
-const themeIcon = computed(() => {
-  return colorMode.value === 'dark'
-    ? 'material-symbols:dark-mode-rounded'
-    : 'material-symbols:light-mode-rounded'
+  isLangDropdownOpen, toggleLangDropdown,
+  availableLocales, currentLocaleName, changeLanguage,
+  toggleTheme, themeIcon,
+  selectedMenu, isDropdownOpen, toggleDropdown, selectOption,
+  menuOptions, dropdownListRef, langDropdownListRef,
+  isDropdownAbove, isLangDropdownAbove, closeAllDropdowns
+} = useSettingsDropdown({
+  stateKey: 'navOwnerCenter',
+  defaultValue: 'dashboard',
+  menuOptions: [
+    { value: 'dashboard', label: computed(() => t('pages.owner.settings.center_options.dashboard')) },
+  ]
 })
 
 // === LOGOUT & POSISI DIALOG ===
 const showLogoutDialog = ref(false)
-const logoutBtnRef = ref(null)
+const logoutBtnRef = ref<HTMLElement | null>(null)
 const logoutDialogPos = ref({ top: '0px', right: '20px' })
 
 const openLogoutDialog = () => {
@@ -71,59 +55,6 @@ const confirmLogout = () => {
   showLogoutDialog.value = false
   navigateTo('/')
 }
-
-// === DROPDOWN KONFIGURASI TOMBOL PUSAT (OWNER) ===
-const selectedMenu = usePersistedState('navOwnerCenter', 'dashboard')
-const isDropdownOpen = ref(false)
-
-const menuOptions = [
-  { value: 'dashboard', label: computed(() => t('pages.owner.settings.center_options.dashboard')) },
-  { value: 'analytics', label: computed(() => t('pages.owner.settings.center_options.analytics')) },
-  { value: 'users', label: computed(() => t('pages.owner.settings.center_options.users')) },
-]
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
-
-const selectOption = (value) => {
-  selectedMenu.value = value
-  isDropdownOpen.value = false
-}
-
-// === DETEKSI DROPDOWN KELUAR VIEWPORT ===
-const dropdownListRef = ref(null)
-const langDropdownListRef = ref(null)
-const isDropdownAbove = ref(false)
-const isLangDropdownAbove = ref(false)
-
-const checkOverflowBottom = (el) => {
-  if (!el) return false
-  const rect = el.getBoundingClientRect()
-  return rect.bottom > window.innerHeight - 8
-}
-
-watch(isDropdownOpen, (val) => {
-  if (val) {
-    nextTick(() => {
-      isDropdownAbove.value = checkOverflowBottom(dropdownListRef.value)
-    })
-  }
-})
-
-watch(isLangDropdownOpen, (val) => {
-  if (val) {
-    nextTick(() => {
-      isLangDropdownAbove.value = checkOverflowBottom(langDropdownListRef.value)
-    })
-  }
-})
-
-// === TUTUP SEMUA DROPDOWN ===
-const closeAllDropdowns = () => {
-  isDropdownOpen.value = false
-  closeLangDropdown()
-}
 </script>
 
 <template>
@@ -135,7 +66,7 @@ const closeAllDropdowns = () => {
       
       <div class="header-actions">
         <!-- Toggle Theme -->
-        <div class="theme-icon-wrapper" :title="themeIcon === 'material-symbols:dark-mode-rounded' ? t('pages.settings.theme_dark') : t('pages.settings.theme_light')" @click="toggleTheme">
+        <div class="theme-icon-wrapper" :title="themeIcon === 'material-symbols:dark-mode-rounded' ? t('ui.theme_dark') : t('ui.theme_light')" @click="toggleTheme">
           <Icon :name="themeIcon" size="24" class="theme-icon" />
         </div>
         
@@ -184,7 +115,7 @@ const closeAllDropdowns = () => {
         <div class="settings-item dropdown-item" :class="{ 'z-active': isDropdownOpen }">
           <Icon name="material-symbols:dashboard-customize-rounded" size="24" class="item-icon" />
           <div class="item-text">
-            <span class="item-label">{{ t('pages.owner.settings.center_button') }}</span>
+            <span class="item-label">{{ t('ui.center_button') }}</span>
             <span class="item-desc">{{ t('pages.owner.settings.center_button_desc') }}</span>
           </div>
           
@@ -218,7 +149,7 @@ const closeAllDropdowns = () => {
         <div class="settings-item dropdown-item" :class="{ 'z-active': isLangDropdownOpen }">
           <Icon name="material-symbols:translate-rounded" size="24" class="item-icon" />
           <div class="item-text">
-            <span class="item-label">{{ t('pages.settings.language') }}</span>
+            <span class="item-label">{{ t('ui.language') }}</span>
           </div>
           
           <div class="custom-dropdown">
@@ -267,14 +198,14 @@ const closeAllDropdowns = () => {
     <div v-if="isDropdownOpen || isLangDropdownOpen" class="dropdown-overlay" @click="closeAllDropdowns"></div>
 
     <!-- Dialog Logout -->
-    <ConfirmDialog 
+    <SharedConfirmDialog
       v-if="showLogoutDialog"
       positioned
       :style="{ '--dialog-top': logoutDialogPos.top, '--dialog-right': logoutDialogPos.right }"
       :title="t('pages.owner.settings.logout_dialog.title')"
       :message="t('pages.owner.settings.logout_dialog.message')"
       :confirmText="t('pages.owner.settings.logout_dialog.confirm')"
-      :cancelText="t('pages.owner.settings.logout_dialog.cancel')"
+      :cancelText="t('ui.cancel')"
       @confirm="confirmLogout"
       @cancel="showLogoutDialog = false"
     />

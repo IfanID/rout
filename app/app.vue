@@ -1,5 +1,5 @@
 <!-- app/app.vue -->
-<script setup>
+<script setup lang="ts">
 const route = useRoute()
 const { locales } = useI18n()
 
@@ -18,7 +18,7 @@ const isOwnerPage = computed(() => cleanPath.value.startsWith('/owner'))
 <template>
   <div>
     
-    <AppNotification />
+    <SharedAppNotification />
     <NavbarOwner v-if="isOwnerPage" />
     <NavbarFinance v-else-if="isFinancePage" />
     <NavbarUserNavbar v-else />

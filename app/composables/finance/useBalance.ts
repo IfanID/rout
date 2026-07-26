@@ -1,4 +1,3 @@
-// app/composables/useBalance.ts
 // Single source of truth untuk balance - disimpan di localStorage
 
 export interface BalanceData {

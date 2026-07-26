@@ -1,45 +1,128 @@
 <script setup lang="ts">
-/* ========== Analytics Data ========== */
+import { useFinanceStore } from '~/composables/finance/useFinanceStore'
+import { useFinanceCategories } from '~/composables/finance/useFinanceCategories'
+
+const { t } = useI18n()
+const { transactions } = useFinanceStore()
+const { getCategoryById } = useFinanceCategories()
 
 const period = ref<'minggu' | 'bulan' | 'tahun'>('bulan')
 
-const summary = {
-  income: 8_500_000,
-  expense: 4_250_000,
-  balance: 4_250_000,
-  transactions: 24,
+/* ========== Period Filtering ========== */
+const filteredTransactions = computed(() => {
+  const now = new Date()
+  let start: Date
+
+  if (period.value === 'minggu') {
+    start = new Date(now)
+    start.setDate(now.getDate() - now.getDay())
+    start.setHours(0, 0, 0, 0)
+  } else if (period.value === 'bulan') {
+    start = new Date(now.getFullYear(), now.getMonth(), 1)
+  } else {
+    start = new Date(now.getFullYear(), 0, 1)
+  }
+
+  return (transactions.value || []).filter((tx: any) => {
+    const d = new Date(tx.createdAt)
+    return d >= start
+  })
+})
+
+/* ========== Summary ========== */
+const summary = computed(() => {
+  const txs = filteredTransactions.value
+  const income = txs
+    .filter((t: any) => t.type === 'income')
+    .reduce((s: number, t: any) => s + (Number(t.amount) || 0), 0)
+  const expense = txs
+    .filter((t: any) => t.type === 'expense')
+    .reduce((s: number, t: any) => s + (Number(t.amount) || 0), 0)
+  return {
+    income,
+    expense,
+    balance: income - expense,
+    transactions: txs.length,
+  }
+})
+
+/* ========== Category Breakdown (income & expense) ========== */
+function buildCategoryBreakdown(typeFilter: string) {
+  const txs = filteredTransactions.value.filter((t: any) => t.type === typeFilter)
+  const map = new Map<string, { amount: number; color: string; order: number }>()
+
+  txs.forEach((tx: any) => {
+    const cat = getCategoryById(tx.categoryId)
+    const key = tx.categoryId || `other_${typeFilter}`
+    const existing = map.get(key)
+    const amt = Number(tx.amount) || 0
+    if (existing) {
+      existing.amount += amt
+    } else {
+      map.set(key, {
+        amount: amt,
+        color: cat?.color || '#9ca3af',
+        order: typeof cat?.order === 'number' ? cat.order : 999,
+      })
+    }
+  })
+
+  return Array.from(map.entries())
+    .map(([id, data]) => {
+      const cat = getCategoryById(id)
+      return {
+        label: cat ? t(cat.labelKey) : id,
+        amount: data.amount,
+        stroke: data.color,
+        order: data.order,
+      }
+    })
+    .filter((c) => c.amount > 0)
+    .sort((a, b) => a.order - b.order)
 }
 
-const categoryExpenses = [
-  { label: 'Makanan', amount: 1_200_000, stroke: '#fb923c' },
-  { label: 'Transportasi', amount: 650_000, stroke: '#60a5fa' },
-  { label: 'Belanja', amount: 800_000, stroke: '#f472b6' },
-  { label: 'Rumah', amount: 500_000, stroke: '#fbbf24' },
-  { label: 'Tagihan', amount: 400_000, stroke: '#c084fc' },
-  { label: 'Hiburan', amount: 350_000, stroke: '#34d399' },
-  { label: 'Kesehatan', amount: 200_000, stroke: '#f87171' },
-  { label: 'Lainnya', amount: 150_000, stroke: '#9ca3af' },
-]
+const categoryIncome = computed(() => {
+  const result = buildCategoryBreakdown('income')
+  return result.length > 0
+    ? result
+    : [{ label: '-', amount: 0, stroke: '#9ca3af', order: 999 }]
+})
+
+const categoryExpenses = computed(() => {
+  const result = buildCategoryBreakdown('expense')
+  return result.length > 0
+    ? result
+    : [{ label: '-', amount: 0, stroke: '#9ca3af', order: 999 }]
+})
+
+const maxIncome = computed(() =>
+  Math.max(...categoryIncome.value.map((c) => c.amount), 0),
+)
 
 const maxExpense = computed(() =>
-  Math.max(...categoryExpenses.map((c) => c.amount)),
+  Math.max(...categoryExpenses.value.map((c) => c.amount), 0),
 )
 
 /* ========== Donut Hover ========== */
-
 const hoveredIndex = ref<number | null>(null)
+const hoveredChart = ref<'expense' | 'income'>('expense')
 
 const hoveredCategory = computed(() => {
   if (hoveredIndex.value === null) return null
-  return categoryExpenses[hoveredIndex.value] ?? null
+  const list = hoveredChart.value === 'expense' ? categoryExpenses.value : categoryIncome.value
+  return list[hoveredIndex.value] ?? null
 })
 
+const donutTotal = computed(() =>
+  hoveredChart.value === 'expense' ? summary.value.expense : summary.value.income,
+)
+
 function pct(n: number): string {
-  return ((n / summary.expense) * 100).toFixed(0) + '%'
+  if (donutTotal.value === 0) return '0%'
+  return ((n / donutTotal.value) * 100).toFixed(0) + '%'
 }
 
 /* ========== Helpers ========== */
-
 function formatShort(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}jt`
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}rb`
@@ -76,18 +159,30 @@ function formatShort(n: number): string {
       <!-- HERO: Donut Chart -->
       <div class="donut-card">
         <div class="donut-card__inner">
+          <!-- Chart Type Toggle -->
+          <div class="chart-toggle">
+            <button
+              :class="['chart-toggle__btn', { 'chart-toggle__btn--active': hoveredChart === 'expense' }]"
+              @click="hoveredChart = 'expense'; hoveredIndex = null"
+            >Pengeluaran</button>
+            <button
+              :class="['chart-toggle__btn', { 'chart-toggle__btn--active': hoveredChart === 'income' }]"
+              @click="hoveredChart = 'income'; hoveredIndex = null"
+            >Pemasukan</button>
+          </div>
+
           <div class="donut-center-col">
             <div class="donut-wrap">
               <div class="donut-glow" />
               <svg viewBox="0 0 36 36" class="donut-svg">
                 <circle
-                  v-for="(cat, i) in categoryExpenses"
+                  v-for="(cat, i) in (hoveredChart === 'expense' ? categoryExpenses : categoryIncome)"
                   :key="cat.label"
                   cx="18" cy="18" r="14" fill="none"
                   :stroke="cat.stroke"
                   :stroke-width="hoveredIndex === i ? 5.5 : 3.5"
-                  :stroke-dasharray="`${(cat.amount / summary.expense) * 87.96} 87.96`"
-                  :stroke-dashoffset="`${-categoryExpenses.slice(0, i).reduce((s, c) => s + (c.amount / summary.expense) * 87.96, 0)}`"
+                  :stroke-dasharray="`${(cat.amount / donutTotal) * 87.96} 87.96`"
+                  :stroke-dashoffset="`${-(hoveredChart === 'expense' ? categoryExpenses : categoryIncome).slice(0, i).reduce((s, c) => s + (c.amount / donutTotal) * 87.96, 0)}`"
                   class="donut-segment"
                   :style="{ filter: hoveredIndex === i ? `drop-shadow(0 0 6px ${cat.stroke}80)` : 'none' }"
                   @mouseenter="hoveredIndex = i"
@@ -110,8 +205,8 @@ function formatShort(n: number): string {
                   <span class="donut-center__cat-amount">{{ formatShort(hoveredCategory.amount) }}</span>
                 </template>
                 <template v-else>
-                  <span class="donut-center__default-label">Total Pengeluaran</span>
-                  <span class="donut-center__default-value">{{ formatShort(summary.expense) }}</span>
+                  <span class="donut-center__default-label">{{ hoveredChart === 'expense' ? 'Total Pengeluaran' : 'Total Pemasukan' }}</span>
+                  <span class="donut-center__default-value">{{ formatShort(donutTotal) }}</span>
                 </template>
               </div>
             </div>
@@ -147,7 +242,7 @@ function formatShort(n: number): string {
           <!-- Legend Grid -->
           <div class="legend-grid">
             <div
-              v-for="(cat, i) in categoryExpenses"
+              v-for="(cat, i) in (hoveredChart === 'expense' ? categoryExpenses : categoryIncome)"
               :key="cat.label"
               :class="['legend-item', { 'legend-item--active': hoveredIndex === i }]"
               @mouseenter="hoveredIndex = i"
@@ -166,8 +261,26 @@ function formatShort(n: number): string {
         </div>
       </div>
 
-      <!-- Bar Chart -->
-      <div class="bar-card">
+      <!-- Bar Chart: Pemasukan -->
+      <div v-if="categoryIncome.some(c => c.amount > 0)" class="bar-card">
+        <h2 class="section-title">Pemasukan per Kategori</h2>
+        <div class="bar-list">
+          <div v-for="cat in categoryIncome" :key="cat.label" class="bar-row">
+            <div class="bar-label">{{ cat.label }}</div>
+            <div class="bar-track">
+              <div
+                class="bar-fill"
+                :style="{ width: `${(cat.amount / maxIncome) * 100}%`, backgroundColor: cat.stroke }"
+              >
+                <span class="bar-text">{{ formatShort(cat.amount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart: Pengeluaran -->
+      <div v-if="categoryExpenses.some(c => c.amount > 0)" class="bar-card">
         <h2 class="section-title">Pengeluaran per Kategori</h2>
         <div class="bar-list">
           <div v-for="cat in categoryExpenses" :key="cat.label" class="bar-row">
@@ -352,6 +465,42 @@ function formatShort(n: number): string {
   background-color: #6366f1;
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+/* ================================================
+   CHART TOGGLE (Income / Expense)
+   ================================================ */
+
+.chart-toggle {
+  display: flex;
+  background-color: var(--c-surface-border-alt);
+  border-radius: 0.75rem;
+  padding: 4px;
+  margin-bottom: 1.5rem;
+  width: fit-content;
+}
+
+.chart-toggle__btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.01em;
+}
+
+.chart-toggle__btn:hover {
+  color: var(--c-text-primary);
+}
+
+.chart-toggle__btn--active {
+  background-color: var(--c-surface);
+  color: var(--c-text-primary);
+  box-shadow: var(--c-card-shadow);
 }
 
 /* ================================================

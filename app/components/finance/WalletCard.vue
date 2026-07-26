@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { getWalletTypeInfo } from '~/composables/useFinanceStore'
+import { getWalletTypeInfo } from '~/composables/finance/useFinanceStore'
 
 const { t } = useI18n()
 
@@ -92,7 +92,7 @@ const getDisplayBalance = (value) => {
 
         <div v-if="!wallet.isDefault" class="dropdown-item text-danger" @click="emit('delete', wallet, $event)">
           <Icon name="mdi:trash-can-outline" size="18" />
-          <span>{{ t('pages.finance.wallets.menu.delete') }}</span>
+          <span>{{ t('ui.delete') }}</span>
         </div>
       </div>
     </div>

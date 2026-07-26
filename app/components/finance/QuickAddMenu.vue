@@ -1,5 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
+import { useFinanceStore } from '~/composables/finance/useFinanceStore'
+import { useFinanceCategories } from '~/composables/finance/useFinanceCategories'
+import { useNotification } from '~/composables/shared/useNotification'
 
 const { t } = useI18n()
 const { wallets, defaultWalletId, addTransaction, getWalletBalance } = useFinanceStore()

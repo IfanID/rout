@@ -1,5 +1,5 @@
 // app/plugins/persisted-state.client.ts
-import { walletTypes } from '~/composables/useFinanceStore'
+import { walletTypes } from '~/composables/finance/useFinanceStore'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const keysToSync = [
@@ -95,19 +95,5 @@ export default defineNuxtPlugin((nuxtApp) => {
       },
       { deep: true }
     )
-  })
-
-  nuxtApp.hook('app:mounted', () => {
-    nextTick(() => {
-      keysToSync.forEach(key => {
-        try {
-          const savedData = localStorage.getItem(key)
-          if (savedData === null) return
-          applyState(key, savedData)
-        } catch (error) {
-          console.warn(`Gagal re-sync ${key} setelah mount:`, error)
-        }
-      })
-    })
   })
 })

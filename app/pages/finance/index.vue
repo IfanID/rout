@@ -1,10 +1,17 @@
-<script setup>
+<script setup lang="ts">
+import { useFinanceStore } from '~/composables/finance/useFinanceStore'
+
 const { t } = useI18n()
 const { totalBalance, totalIncome, totalExpense } = useFinanceStore()
 
+const currentMonth = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+})
+
 const isAmountsLoading = ref(true)
 const isMounted = ref(false)
-const isBalanceHidden = useBalanceVisibility()
+const isBalanceHidden = useState('isBalanceHidden', () => false)
 const progressFill = ref(0)
 const progressExpense = ref(0)
 
@@ -62,7 +69,7 @@ onMounted(() => {
     <template v-if="isMounted">
       <header class="header">
         <p class="header-greeting">{{ t('pages.finance.index.greeting') }}</p>
-        <h1 class="header-title">Juni 2026</h1>
+        <h1 class="header-title">{{ currentMonth }}</h1>
       </header>
 
       <section class="card">

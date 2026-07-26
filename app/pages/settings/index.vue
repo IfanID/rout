@@ -1,94 +1,28 @@
-<script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useSettingsDropdown } from '~/composables/shared/useSettingsDropdown'
 
-const { t, locale, locales, setLocale } = useI18n()
+const { t } = useI18n()
 
-// === DROPDOWN BAHASA (langsung di komponen, bukan di composable) ===
 const {
-  isLangDropdownOpen,
-  toggleLangDropdown,
-  closeLangDropdown
-} = useLanguage()
-
-const availableLocales = computed(() => {
-  return locales.value.map(l => (typeof l === 'object' ? l : { code: l, name: l }))
+  isLangDropdownOpen, toggleLangDropdown,
+  availableLocales, currentLocaleName, changeLanguage,
+  toggleTheme, themeIcon, colorMode,
+  selectedMenu, isDropdownOpen, toggleDropdown, selectOption,
+  menuOptions, dropdownListRef, langDropdownListRef,
+  isDropdownAbove, isLangDropdownAbove, closeAllDropdowns
+} = useSettingsDropdown({
+  stateKey: 'navCenterMenu',
+  defaultValue: 'running-man',
+  menuOptions: [
+    { value: 'running-man', label: computed(() => t('components.centerMenu.running_man')) },
+    { value: 'finance', label: computed(() => t('components.centerMenu.finance')) },
+  ]
 })
 
-const currentLocaleName = computed(() => {
-  const active = availableLocales.value.find(l => l.code === locale.value)
-  return active ? active.name : 'Unknown'
-})
-
-const changeLanguage = (code) => {
-  setLocale(code)
-  isLangDropdownOpen.value = false
-}
-
-// === COLOR MODE TOGGLE ===
-const colorMode = useColorMode()
-const toggleTheme = () => {
-  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-}
-const themeIcon = computed(() => {
-  return colorMode.value === 'dark'
-    ? 'material-symbols:dark-mode-rounded'
-    : 'material-symbols:light-mode-rounded'
-})
 const themeLabel = computed(() => {
-  return colorMode.value === 'dark' ? t('pages.settings.theme_dark') : t('pages.settings.theme_light')
+  return colorMode.value === 'dark' ? t('ui.theme_dark') : t('ui.theme_light')
 })
-
-// === DROPDOWN TOMBOL PUSAT ===
-const selectedMenu = usePersistedState('navCenterMenu', 'running-man')
-const isDropdownOpen = ref(false)
-
-const menuOptions = [
-  { value: 'running-man', label: computed(() => t('components.centerMenu.running_man')) },
-  { value: 'finance', label: computed(() => t('components.centerMenu.finance')) },
-]
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
-
-const selectOption = (value) => {
-  selectedMenu.value = value
-  isDropdownOpen.value = false
-}
-
-// === DETEKSI DROPDOWN KELUAR VIEWPORT ===
-const dropdownListRef = ref(null)
-const langDropdownListRef = ref(null)
-const isDropdownAbove = ref(false)
-const isLangDropdownAbove = ref(false)
-
-const checkOverflowBottom = (el) => {
-  if (!el) return false
-  const rect = el.getBoundingClientRect()
-  return rect.bottom > window.innerHeight - 8
-}
-
-watch(isDropdownOpen, (val) => {
-  if (val) {
-    nextTick(() => {
-      isDropdownAbove.value = checkOverflowBottom(dropdownListRef.value)
-    })
-  }
-})
-
-watch(isLangDropdownOpen, (val) => {
-  if (val) {
-    nextTick(() => {
-      isLangDropdownAbove.value = checkOverflowBottom(langDropdownListRef.value)
-    })
-  }
-})
-
-// === TUTUP SEMUA DROPDOWN SAAT KLIK OVERLAY ===
-const closeAllDropdowns = () => {
-  isDropdownOpen.value = false
-  closeLangDropdown()
-}
 </script>
 
 <template>
@@ -138,7 +72,7 @@ const closeAllDropdowns = () => {
         <div class="settings-item dropdown-item" :class="{ 'z-active': isDropdownOpen }">
           <Icon name="material-symbols:dashboard-customize-rounded" size="24" class="item-icon" />
           <div class="item-text">
-            <span class="item-label">{{ t('pages.settings.center_button') }}</span>
+            <span class="item-label">{{ t('ui.center_button') }}</span>
             <span class="item-desc">{{ t('pages.settings.center_button_desc') }}</span>
           </div>
           
@@ -172,7 +106,7 @@ const closeAllDropdowns = () => {
         <div class="settings-item dropdown-item" :class="{ 'z-active': isLangDropdownOpen }">
           <Icon name="material-symbols:translate-rounded" size="24" class="item-icon" />
           <div class="item-text">
-            <span class="item-label">{{ t('pages.settings.language') }}</span>
+            <span class="item-label">{{ t('ui.language') }}</span>
           </div>
           
           <div class="custom-dropdown">

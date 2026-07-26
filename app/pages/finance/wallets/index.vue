@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { walletTypes } from '~/composables/useFinanceStore'
+import { useFinanceStore, walletTypes } from '~/composables/finance/useFinanceStore'
 
 const { t } = useI18n()
 const {
@@ -17,7 +17,7 @@ const isBalanceLoading = ref(true)
 const isMounted = ref(false)
 const showFormDialog = ref(false)
 const showDeleteDialog = ref(false)
-const isBalanceHidden = useBalanceVisibility()
+const isBalanceHidden = useState('isBalanceHidden', () => false)
 const menuCloseTrigger = ref(0)
 
 const dialogMode = ref('add')
@@ -217,10 +217,10 @@ onMounted(() => {
 
           <div class="form-actions">
             <button type="button" class="form-btn cancel" @click="showFormDialog = false">
-              {{ t('pages.finance.wallets.dialog.cancel') }}
+              {{ t('ui.cancel') }}
             </button>
             <button type="submit" class="form-btn save">
-              {{ t('pages.finance.wallets.dialog.save') }}
+              {{ t('ui.save') }}
             </button>
           </div>
         </form>
@@ -233,14 +233,14 @@ onMounted(() => {
       @click="isTypeDropdownOpen = false"
     ></div>
 
-    <ConfirmDialog
+    <SharedConfirmDialog
       v-if="showDeleteDialog"
       positioned
       :style="{ '--dialog-top': dialogPosition.top, '--dialog-right': dialogPosition.right }"
       :title="t('pages.finance.wallets.dialog.delete_title')"
       :message="t('pages.finance.wallets.dialog.delete_message')"
       :confirmText="t('pages.finance.wallets.dialog.delete_confirm')"
-      :cancelText="t('pages.finance.wallets.dialog.cancel')"
+      :cancelText="t('ui.cancel')"
       @confirm="confirmDelete"
       @cancel="cancelDelete"
     />

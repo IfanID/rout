@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import { useLocalData } from '~/composables/owner/useLocalData'
+
 const { stats, totalBalance, formatRupiah } = useLocalData()
 
 const balanceAnimated = ref(0)

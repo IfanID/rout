@@ -1,5 +1,7 @@
 import { ref, computed } from 'vue'
-import { getWalletTypeInfo } from '~/composables/useFinanceStore'
+import { useFinanceStore, getWalletTypeInfo } from '~/composables/finance/useFinanceStore'
+import { useFinanceCategories } from '~/composables/finance/useFinanceCategories'
+import { useNotification } from '~/composables/shared/useNotification'
 
 // ============================================================
 // MODULE-LEVEL SINGLETON STATE
@@ -15,8 +17,6 @@ const showStorageDetailModal = ref(false)
 const selectedStorageKey = ref<string | null>(null)
 const transactionFilter = ref('all')
 const transactionSearch = ref('')
-const toastMessage = ref('')
-const toastVisible = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const dialogConfig = ref({
   show: false,
@@ -30,11 +30,11 @@ const dialogConfig = ref({
 // ============================================================
 // CONSTANTS (tidak perlu reactive, cukup module-level)
 // ============================================================
-const DATA_KEYS = ['financeWallets', 'financeTransactions']
+const DATA_KEYS = ['financeWallets', 'financeTransactions', 'financeBalances']
 
 const ALL_DATA_KEYS = [
   'navCenterMenu', 'navFinanceCenter', 'navOwnerCenter',
-  'isBalanceHidden', 'financeWallets', 'financeTransactions'
+  'isBalanceHidden', 'financeWallets', 'financeTransactions', 'financeBalances'
 ]
 
 const STORAGE_KEY_META: Record<string, any> = {
@@ -48,6 +48,12 @@ const STORAGE_KEY_META: Record<string, any> = {
     label: 'Data Transaksi',
     description: 'Menyimpan seluruh riwayat transaksi: pemasukan, pengeluaran, transfer, dan hutang.',
     icon: 'material-symbols:receipt-long-rounded',
+    category: 'Keuangan'
+  },
+  financeBalances: {
+    label: 'Data Saldo',
+    description: 'Menyimpan saldo aktif setiap dompet. Dihitung otomatis dari transaksi.',
+    icon: 'material-symbols:account-balance-rounded',
     category: 'Keuangan'
   }
 }
@@ -89,12 +95,14 @@ export function useLocalData() {
   } = useFinanceStore()
   const { getCategoryById } = useFinanceCategories()
 
+  const { showToast } = useNotification()
+
   const isClient = import.meta.client
 
-  const isBalanceHidden = useBalanceVisibility()
-  const navCenterMenu = usePersistedState('navCenterMenu', 'running-man')
-  const navFinanceCenter = usePersistedState('navFinanceCenter', 'analytics')
-  const navOwnerCenter = usePersistedState('navOwnerCenter', 'dashboard')
+  const isBalanceHidden = useState('isBalanceHidden', () => false)
+  const navCenterMenu = useState('navCenterMenu', () => 'running-man')
+  const navFinanceCenter = useState('navFinanceCenter', () => 'analytics')
+  const navOwnerCenter = useState('navOwnerCenter', () => 'dashboard')
 
   // ========== COMPUTED ==========
   const walletList = computed(() => wallets.value || [])
@@ -252,12 +260,6 @@ export function useLocalData() {
     })
   }
 
-  const showToast = (msg: string) => {
-    toastMessage.value = msg
-    toastVisible.value = true
-    setTimeout(() => { toastVisible.value = false }, 2500)
-  }
-
   const openConfirmDialog = (title: string, message: string, onConfirm: () => void) => {
     dialogConfig.value = { show: true, title, message, confirmText: 'Ya', cancelText: 'Batal', onConfirm }
   }
@@ -389,7 +391,7 @@ export function useLocalData() {
     showWalletDetailModal, selectedWallet,
     showStorageDetailModal, selectedStorageKey,
     transactionFilter, transactionSearch,
-    toastMessage, toastVisible, fileInputRef, dialogConfig,
+    fileInputRef, dialogConfig,
     // Constants
     DATA_KEYS, ALL_DATA_KEYS, STORAGE_KEY_META,
     FILTER_OPTIONS, TYPE_LABELS, TYPE_COLORS,

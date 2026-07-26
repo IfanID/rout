@@ -1,6 +1,19 @@
 {
   "ui": {
-    "loading": "Memuat"
+    "loading": "Memuat",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Hapus",
+    "yes": "Ya",
+    "edit": "Edit",
+    "copy": "Salin",
+    "refresh": "Refresh",
+    "import": "Impor",
+    "export": "Ekspor",
+    "center_button": "Tombol Pusat",
+    "theme_dark": "Mode Gelap",
+    "theme_light": "Mode Terang",
+    "language": "Bahasa"
   },
   "components": {
     "navbar": {
@@ -13,6 +26,7 @@
       "transactions": "Transaksi",
       "wallets": "Dompet",
       "analytics": "Analitik",
+      "debt": "Hutang",
       "ownerDashboard": "Dasbor Owner",
       "ownerUsers": "Pengguna"
     },
@@ -72,7 +86,6 @@
         "app_name": "Nama Aplikasi",
         "app_version": "Versi Aplikasi",
         "system": "Sistem",
-        "center_button": "Tombol Pusat",
         "center_button_desc": "Ubah menu di tombol tengah navigasi",
         "center_options": {
           "dashboard": "Dasbor",
@@ -85,8 +98,7 @@
         "logout_dialog": {
           "title": "Keluar dari Owner Panel?",
           "message": "Anda akan diarahkan kembali ke halaman utama.",
-          "confirm": "Ya, Keluar",
-          "cancel": "Batal"
+          "confirm": "Ya, Keluar"
         }
       },
       "local_data": {
@@ -95,23 +107,14 @@
         "total_keys": "Total Key",
         "total_size": "Ukuran Total",
         "search_placeholder": "Cari key...",
-        "refresh": "Refresh",
-        "import": "Impor",
-        "export": "Ekspor",
         "delete_all": "Hapus Semua",
         "col_key": "Key",
         "col_size": "Ukuran",
         "col_actions": "Aksi",
         "view": "Lihat",
-        "edit": "Edit",
-        "copy": "Salin",
-        "delete": "Hapus",
         "empty": "Tidak ada data di localStorage",
         "size": "Ukuran",
         "edit_title": "Edit: {0}",
-        "cancel": "Batal",
-        "save": "Simpan",
-        "yes": "Ya",
         "edit_success": "Data berhasil diperbarui",
         "edit_error": "Gagal menyimpan data",
         "delete_confirm_single": "Hapus key \"{0}\"?",
@@ -152,14 +155,10 @@
       "security": "Keamanan",
       "security_desc": "Password dan verifikasi 2 langkah",
       "appearance": "Tampilan",
-      "center_button": "Tombol Pusat",
       "center_button_desc": "Ubah menu di tombol tengah",
-      "language": "Bahasa",
       "others": "Lainnya",
       "about": "Tentang Aplikasi",
-      "about_version": "Versi 1.0.0",
-      "theme_dark": "Mode Gelap",
-      "theme_light": "Mode Terang"
+      "about_version": "Versi 1.0.0"
     },
     "finance": {
       "index": {
@@ -250,13 +249,35 @@
         "pay_confirm_title": "Konfirmasi Pembayaran",
         "pay_confirm_desc": "Uang akan diambil dari dompet peminjam",
         "pay_from": "Dibayar dari",
-        "cancel": "Batal",
         "yes_pay": "Ya, Bayar",
         "status_paid": "Lunas",
         "paid_at": "Dibayar pada",
         "history": "Riwayat",
         "history_title": "Riwayat Pinjaman",
-        "history_empty": "Belum ada pinjaman yang lunas"
+        "history_empty": "Belum ada pinjaman yang lunas",
+        "created": "Dibuat",
+        "at_time": "Pukul",
+        "payment_target": "Target Pembayaran",
+        "custom": "Kustom",
+        "change_target": "Ubah target",
+        "reset_default": "Reset default",
+        "target_set_after_created": "Target pembayaran harus setelah tanggal dibuat",
+        "target_updated": "Target pembayaran berhasil diperbarui",
+        "target_reset": "Target dikembalikan ke default (1 bulan)",
+        "select_target_date": "Pilih tanggal target terlebih dahulu",
+        "confirm_payment": "Konfirmasi Pembayaran",
+        "confirm_payment_desc": "Pastikan data di bawah sudah benar sebelum melanjutkan",
+        "fine": "Denda",
+        "total_pay": "Total Bayar",
+        "from_wallet": "Dari Dompet",
+        "balance": "Saldo",
+        "yes_pay_now": "Ya, Bayar Sekarang",
+        "target": "Target",
+        "settled": "Dilunasi",
+        "paid_in_days": "Lunas dalam {0} Hari",
+        "exceeded_target_days": "Melewati target {0} Hari sebelum dilunasi",
+        "insufficient_balance": "Saldo dompet peminjam tidak mencukupi untuk membayar hutang!",
+        "payment_success": "Pembayaran berhasil"
       },
       "wallets": {
         "title": "Dompet",
@@ -266,8 +287,7 @@
         "menu": {
           "rename": "Ubah Nama",
           "change_type": "Ubah Tipe",
-          "set_default": "Jadikan Default",
-          "delete": "Hapus"
+          "set_default": "Jadikan Default"
         },
         "dialog": {
           "add_title": "Tambah Dompet Baru",
@@ -277,8 +297,6 @@
           "rename_title": "Ubah Nama Dompet",
           "name_placeholder": "Masukkan nama dompet",
           "type": "Tipe Dompet",
-          "cancel": "Batal",
-          "save": "Simpan",
           "delete_title": "Hapus Dompet?",
           "delete_message": "Apakah Anda yakin ingin menghapus dompet ini? Semua riwayat transaksi terkait mungkin terpengaruh.",
           "delete_confirm": "Ya, Hapus",
@@ -289,7 +307,6 @@
         "title": "Profile Finance",
         "logout": "Keluar",
         "appearance": "Tampilan",
-        "center_button": "Tombol Pusat",
         "center_button_desc": "Ubah menu di tombol tengah",
         "menu": "Menu",
         "account_settings": "Pengaturan Akun",
@@ -299,8 +316,7 @@
         "logout_dialog": {
           "title": "Keluar dari Finance?",
           "message": "Anda akan diarahkan kembali ke halaman utama.",
-          "confirm": "Ya, Keluar",
-          "cancel": "Batal"
+          "confirm": "Ya, Keluar"
         }
       }
     },

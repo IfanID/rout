@@ -1,4 +1,3 @@
-// app/composables/useFinanceStore.ts
 import { useBalance } from './useBalance'
 
 export interface WalletType {

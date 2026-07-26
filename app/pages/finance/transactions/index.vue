@@ -170,7 +170,7 @@
         </div>
         <h2 class="tx-state__title">{{ t('pages.finance.transactions.empty_title') }}</h2>
         <p class="tx-state__desc">{{ t('pages.finance.transactions.empty_desc') }}</p>
-        <button class="tx-state__btn tx-state__btn--primary">
+        <button class="tx-state__btn tx-state__btn--primary" @click="navigateTo('/finance')">
           <Icon name="material-symbols:add-rounded" size="20" />
           {{ t('pages.finance.transactions.empty_add') }}
         </button>
@@ -536,7 +536,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useFinanceStore } from '~/composables/finance/useFinanceStore'
+import { useFinanceCategories } from '~/composables/finance/useFinanceCategories'
+
 /**
  * Finance Transactions Page
  * ========================
