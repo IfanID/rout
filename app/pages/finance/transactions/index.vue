@@ -1,318 +1,3 @@
-<script setup>
-/**
- * Finance Transactions Page
- * ========================
- * Pusat seluruh aktivitas keuangan pengguna.
- * Menampilkan histori transaksi dengan search, filter, sorting,
- * dan detail transaksi dalam modal/bottom sheet.
- */
-
-const { t } = useI18n()
-const { transactions, wallets, getWalletBalance } = useFinanceStore()
-const { categories, getCategoryById } = useFinanceCategories()
-
-// ========== STATE ==========
-const isMounted = ref(false)
-const hasError = ref(false)
-const searchQuery = ref('')
-const sortOrder = ref('newest')
-
-// Filters
-const filterCategory = ref('')
-const filterWallet = ref('')
-const filterType = ref('')
-const filterDateFrom = ref('')
-const filterDateTo = ref('')
-
-// UI State
-const activePopover = ref(null)
-const selectedTransaction = ref(null)
-const showDetail = ref(false)
-const searchInputRef = ref(null)
-
-// ========== TYPE MAP ==========
-const typeOptions = computed(() => [
-  { value: 'income', label: t('pages.finance.transactions.type_income'), icon: 'material-symbols:arrow-downward-rounded', color: 'var(--md-sys-color-primary)' },
-  { value: 'expense', label: t('pages.finance.transactions.type_expense'), icon: 'material-symbols:arrow-upward-rounded', color: 'var(--md-sys-color-error)' },
-  { value: 'transfer', label: t('pages.finance.transactions.type_transfer'), icon: 'material-symbols:swap-horiz-rounded', color: 'var(--md-sys-color-tertiary)' },
-  { value: 'debt', label: t('pages.finance.transactions.type_debt'), icon: 'material-symbols:handshake-outline-rounded', color: '#f59e0b' },
-])
-
-// ========== HELPERS ==========
-const formatRupiah = (n) => {
-  if (!n && n !== 0) return '0'
-  return new Intl.NumberFormat('id-ID').format(n)
-}
-
-const getWalletName = (id) => {
-  if (!id) return '-'
-  const w = wallets.value.find(w => w.id === id)
-  return w ? w.name : '-'
-}
-
-const getAmountPrefix = (type) => {
-  if (type === 'income') return '+'
-  if (type === 'expense' || type === 'debt') return '-'
-  return ''
-}
-
-const getAmountColor = (type) => {
-  if (type === 'income') return 'var(--md-sys-color-primary)'
-  if (type === 'expense') return 'var(--md-sys-color-error)'
-  if (type === 'transfer') return 'var(--md-sys-color-tertiary)'
-  if (type === 'debt') return '#f59e0b'
-  return 'var(--md-sys-color-on-surface)'
-}
-
-const getTypeInfo = (type) => {
-  return typeOptions.value.find(o => o.value === type) || typeOptions.value[0]
-}
-
-// ========== COMPUTED: FILTERED & SORTED ==========
-const filteredTransactions = computed(() => {
-  let result = [...(transactions.value || [])]
-
-  // Search
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter(tx => {
-      const cat = getCategoryById(tx.categoryId)
-      const catName = cat ? t(cat.labelKey).toLowerCase() : ''
-      const desc = (tx.description || '').toLowerCase()
-      const walletName = getWalletName(tx.walletId).toLowerCase()
-      return catName.includes(q) || desc.includes(q) || walletName.includes(q)
-    })
-  }
-
-  // Filter category
-  if (filterCategory.value) {
-    result = result.filter(tx => tx.categoryId === filterCategory.value)
-  }
-
-  // Filter wallet
-  if (filterWallet.value) {
-    result = result.filter(tx => tx.walletId === filterWallet.value || tx.toWalletId === filterWallet.value)
-  }
-
-  // Filter type
-  if (filterType.value) {
-    result = result.filter(tx => tx.type === filterType.value)
-  }
-
-  // Filter date range
-  if (filterDateFrom.value) {
-    const from = new Date(filterDateFrom.value)
-    from.setHours(0, 0, 0, 0)
-    result = result.filter(tx => new Date(tx.createdAt) >= from)
-  }
-  if (filterDateTo.value) {
-    const to = new Date(filterDateTo.value)
-    to.setHours(23, 59, 59, 999)
-    result = result.filter(tx => new Date(tx.createdAt) <= to)
-  }
-
-  // Sort
-  result.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime()
-    const dateB = new Date(b.createdAt).getTime()
-    return sortOrder.value === 'newest' ? dateB - dateA : dateA - dateB
-  })
-
-  return result
-})
-
-// ========== COMPUTED: SUMMARY ==========
-const summaryData = computed(() => {
-  const txs = filteredTransactions.value
-  const totalIncome = txs.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0)
-  const totalExpense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0)
-  return {
-    count: txs.length,
-    totalIncome,
-    totalExpense,
-  }
-})
-
-// ========== COMPUTED: GROUPED BY DATE ==========
-const groupedTransactions = computed(() => {
-  const txs = filteredTransactions.value
-  if (!txs.length) return []
-
-  const groups = {}
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  txs.forEach(tx => {
-    const d = new Date(tx.createdAt)
-    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-    let key
-
-    if (dayStart.getTime() === today.getTime()) {
-      key = '__today__'
-    } else if (dayStart.getTime() === yesterday.getTime()) {
-      key = '__yesterday__'
-    } else {
-      key = dayStart.toISOString().split('T')[0]
-    }
-
-    if (!groups[key]) groups[key] = []
-    groups[key].push(tx)
-  })
-
-  return Object.entries(groups).map(([key, items]) => {
-    let label
-    if (key === '__today__') {
-      label = t('pages.finance.transactions.today')
-    } else if (key === '__yesterday__') {
-      label = t('pages.finance.transactions.yesterday')
-    } else {
-      const d = new Date(key + 'T00:00:00')
-      label = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-    }
-    return { key, label, items }
-  })
-})
-
-// ========== COMPUTED: ACTIVE FILTER COUNT ==========
-const activeFilterCount = computed(() => {
-  let count = 0
-  if (filterCategory.value) count++
-  if (filterWallet.value) count++
-  if (filterType.value) count++
-  if (filterDateFrom.value || filterDateTo.value) count++
-  return count
-})
-
-// ========== COMPUTED: ACTIVE FILTER CHIPS ==========
-const activeFilterChips = computed(() => {
-  const chips = []
-  if (filterCategory.value) {
-    const cat = getCategoryById(filterCategory.value)
-    chips.push({ id: 'category', label: cat ? t(cat.labelKey) : filterCategory.value, color: cat?.color })
-  }
-  if (filterWallet.value) {
-    chips.push({ id: 'wallet', label: getWalletName(filterWallet.value) })
-  }
-  if (filterType.value) {
-    const info = getTypeInfo(filterType.value)
-    chips.push({ id: 'type', label: info.label, color: info.color })
-  }
-  if (filterDateFrom.value || filterDateTo.value) {
-    const from = filterDateFrom.value || '...'
-    const to = filterDateTo.value || '...'
-    chips.push({ id: 'date', label: `${from} — ${to}` })
-  }
-  return chips
-})
-
-// ========== METHODS ==========
-const togglePopover = (name) => {
-  activePopover.value = activePopover.value === name ? null : name
-}
-
-const closePopover = () => {
-  activePopover.value = null
-}
-
-const selectCategory = (id) => {
-  filterCategory.value = filterCategory.value === id ? '' : id
-  closePopover()
-}
-
-const selectWallet = (id) => {
-  filterWallet.value = filterWallet.value === id ? '' : id
-  closePopover()
-}
-
-const selectType = (type) => {
-  filterType.value = filterType.value === type ? '' : type
-  closePopover()
-}
-
-const toggleSort = () => {
-  sortOrder.value = sortOrder.value === 'newest' ? 'oldest' : 'newest'
-}
-
-const resetFilters = () => {
-  filterCategory.value = ''
-  filterWallet.value = ''
-  filterType.value = ''
-  filterDateFrom.value = ''
-  filterDateTo.value = ''
-  searchQuery.value = ''
-}
-
-const removeChip = (chipId) => {
-  if (chipId === 'category') filterCategory.value = ''
-  if (chipId === 'wallet') filterWallet.value = ''
-  if (chipId === 'type') filterType.value = ''
-  if (chipId === 'date') { filterDateFrom.value = ''; filterDateTo.value = '' }
-}
-
-const openDetail = (tx) => {
-  selectedTransaction.value = tx
-  showDetail.value = true
-}
-
-const closeDetail = () => {
-  showDetail.value = false
-  setTimeout(() => { selectedTransaction.value = null }, 300)
-}
-
-const formatTime = (dateStr) => {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-}
-
-const formatFullDate = (dateStr) => {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-const formatDayName = (dateStr) => {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('id-ID', { weekday: 'long' })
-}
-
-const formatDateShort = (dateStr) => {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
-const retryLoad = () => {
-  hasError.value = false
-  isMounted.value = false
-  setTimeout(() => { isMounted.value = true }, 800)
-}
-
-// ========== LIFECYCLE ==========
-onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      isMounted.value = true
-    }, 600)
-  })
-})
-
-// Close popover on escape
-onMounted(() => {
-  const handler = (e) => {
-    if (e.key === 'Escape') {
-      closePopover()
-      if (showDetail.value) closeDetail()
-    }
-  }
-  window.addEventListener('keydown', handler)
-  onUnmounted(() => window.removeEventListener('keydown', handler))
-})
-</script>
-
 <template>
   <div class="tx-page">
     <!-- ========== LOADING STATE ========== -->
@@ -344,7 +29,7 @@ onMounted(() => {
         </span>
       </header>
 
-      <!-- SUMMARY CARDS -->
+      <!-- SUMMARY CARDS - COMPACT ON MOBILE -->
       <section class="tx-summary">
         <div class="tx-summary__card">
           <div class="tx-summary__icon tx-summary__icon--total">
@@ -850,6 +535,321 @@ onMounted(() => {
     </Teleport>
   </div>
 </template>
+
+<script setup>
+/**
+ * Finance Transactions Page
+ * ========================
+ * Pusat seluruh aktivitas keuangan pengguna.
+ * Menampilkan histori transaksi dengan search, filter, sorting,
+ * dan detail transaksi dalam modal/bottom sheet.
+ */
+
+const { t } = useI18n()
+const { transactions, wallets, getWalletBalance } = useFinanceStore()
+const { categories, getCategoryById } = useFinanceCategories()
+
+// ========== STATE ==========
+const isMounted = ref(false)
+const hasError = ref(false)
+const searchQuery = ref('')
+const sortOrder = ref('newest')
+
+// Filters
+const filterCategory = ref('')
+const filterWallet = ref('')
+const filterType = ref('')
+const filterDateFrom = ref('')
+const filterDateTo = ref('')
+
+// UI State
+const activePopover = ref(null)
+const selectedTransaction = ref(null)
+const showDetail = ref(false)
+const searchInputRef = ref(null)
+
+// ========== TYPE MAP ==========
+const typeOptions = computed(() => [
+  { value: 'income', label: t('pages.finance.transactions.type_income'), icon: 'material-symbols:arrow-downward-rounded', color: 'var(--md-sys-color-primary)' },
+  { value: 'expense', label: t('pages.finance.transactions.type_expense'), icon: 'material-symbols:arrow-upward-rounded', color: 'var(--md-sys-color-error)' },
+  { value: 'transfer', label: t('pages.finance.transactions.type_transfer'), icon: 'material-symbols:swap-horiz-rounded', color: 'var(--md-sys-color-tertiary)' },
+  { value: 'debt', label: t('pages.finance.transactions.type_debt'), icon: 'material-symbols:handshake-outline-rounded', color: '#f59e0b' },
+])
+
+// ========== HELPERS ==========
+const formatRupiah = (n) => {
+  if (!n && n !== 0) return '0'
+  return new Intl.NumberFormat('id-ID').format(n)
+}
+
+const getWalletName = (id) => {
+  if (!id) return '-'
+  const w = wallets.value.find(w => w.id === id)
+  return w ? w.name : '-'
+}
+
+const getAmountPrefix = (type) => {
+  if (type === 'income') return '+'
+  if (type === 'expense' || type === 'debt') return '-'
+  return ''
+}
+
+const getAmountColor = (type) => {
+  if (type === 'income') return 'var(--md-sys-color-primary)'
+  if (type === 'expense') return 'var(--md-sys-color-error)'
+  if (type === 'transfer') return 'var(--md-sys-color-tertiary)'
+  if (type === 'debt') return '#f59e0b'
+  return 'var(--md-sys-color-on-surface)'
+}
+
+const getTypeInfo = (type) => {
+  return typeOptions.value.find(o => o.value === type) || typeOptions.value[0]
+}
+
+// ========== COMPUTED: FILTERED & SORTED ==========
+const filteredTransactions = computed(() => {
+  let result = [...(transactions.value || [])]
+
+  // Search
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(tx => {
+      const cat = getCategoryById(tx.categoryId)
+      const catName = cat ? t(cat.labelKey).toLowerCase() : ''
+      const desc = (tx.description || '').toLowerCase()
+      const walletName = getWalletName(tx.walletId).toLowerCase()
+      return catName.includes(q) || desc.includes(q) || walletName.includes(q)
+    })
+  }
+
+  // Filter category
+  if (filterCategory.value) {
+    result = result.filter(tx => tx.categoryId === filterCategory.value)
+  }
+
+  // Filter wallet
+  if (filterWallet.value) {
+    result = result.filter(tx => tx.walletId === filterWallet.value || tx.toWalletId === filterWallet.value)
+  }
+
+  // Filter type
+  if (filterType.value) {
+    result = result.filter(tx => tx.type === filterType.value)
+  }
+
+  // Filter date range
+  if (filterDateFrom.value) {
+    const from = new Date(filterDateFrom.value)
+    from.setHours(0, 0, 0, 0)
+    result = result.filter(tx => new Date(tx.createdAt) >= from)
+  }
+  if (filterDateTo.value) {
+    const to = new Date(filterDateTo.value)
+    to.setHours(23, 59, 59, 999)
+    result = result.filter(tx => new Date(tx.createdAt) <= to)
+  }
+
+  // Sort
+  result.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime()
+    const dateB = new Date(b.createdAt).getTime()
+    return sortOrder.value === 'newest' ? dateB - dateA : dateA - dateB
+  })
+
+  return result
+})
+
+// ========== COMPUTED: SUMMARY ==========
+const summaryData = computed(() => {
+  const txs = filteredTransactions.value
+  const totalIncome = txs.filter(t => t.type === 'income').reduce((s, t) => s + (t.amount || 0), 0)
+  const totalExpense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + (t.amount || 0), 0)
+  return {
+    count: txs.length,
+    totalIncome,
+    totalExpense,
+  }
+})
+
+// ========== COMPUTED: GROUPED BY DATE ==========
+const groupedTransactions = computed(() => {
+  const txs = filteredTransactions.value
+  if (!txs.length) return []
+
+  const groups = {}
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  txs.forEach(tx => {
+    const d = new Date(tx.createdAt)
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+    let key
+
+    if (dayStart.getTime() === today.getTime()) {
+      key = '__today__'
+    } else if (dayStart.getTime() === yesterday.getTime()) {
+      key = '__yesterday__'
+    } else {
+      key = dayStart.toISOString().split('T')[0]
+    }
+
+    if (!groups[key]) groups[key] = []
+    groups[key].push(tx)
+  })
+
+  return Object.entries(groups).map(([key, items]) => {
+    let label
+    if (key === '__today__') {
+      label = t('pages.finance.transactions.today')
+    } else if (key === '__yesterday__') {
+      label = t('pages.finance.transactions.yesterday')
+    } else {
+      const d = new Date(key + 'T00:00:00')
+      label = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    }
+    return { key, label, items }
+  })
+})
+
+// ========== COMPUTED: ACTIVE FILTER COUNT ==========
+const activeFilterCount = computed(() => {
+  let count = 0
+  if (filterCategory.value) count++
+  if (filterWallet.value) count++
+  if (filterType.value) count++
+  if (filterDateFrom.value || filterDateTo.value) count++
+  return count
+})
+
+// ========== COMPUTED: ACTIVE FILTER CHIPS ==========
+const activeFilterChips = computed(() => {
+  const chips = []
+  if (filterCategory.value) {
+    const cat = getCategoryById(filterCategory.value)
+    chips.push({ id: 'category', label: cat ? t(cat.labelKey) : filterCategory.value, color: cat?.color })
+  }
+  if (filterWallet.value) {
+    chips.push({ id: 'wallet', label: getWalletName(filterWallet.value) })
+  }
+  if (filterType.value) {
+    const info = getTypeInfo(filterType.value)
+    chips.push({ id: 'type', label: info.label, color: info.color })
+  }
+  if (filterDateFrom.value || filterDateTo.value) {
+    const from = filterDateFrom.value || '...'
+    const to = filterDateTo.value || '...'
+    chips.push({ id: 'date', label: `${from} — ${to}` })
+  }
+  return chips
+})
+
+// ========== METHODS ==========
+const togglePopover = (name) => {
+  activePopover.value = activePopover.value === name ? null : name
+}
+
+const closePopover = () => {
+  activePopover.value = null
+}
+
+const selectCategory = (id) => {
+  filterCategory.value = filterCategory.value === id ? '' : id
+  closePopover()
+}
+
+const selectWallet = (id) => {
+  filterWallet.value = filterWallet.value === id ? '' : id
+  closePopover()
+}
+
+const selectType = (type) => {
+  filterType.value = filterType.value === type ? '' : type
+  closePopover()
+}
+
+const toggleSort = () => {
+  sortOrder.value = sortOrder.value === 'newest' ? 'oldest' : 'newest'
+}
+
+const resetFilters = () => {
+  filterCategory.value = ''
+  filterWallet.value = ''
+  filterType.value = ''
+  filterDateFrom.value = ''
+  filterDateTo.value = ''
+  searchQuery.value = ''
+}
+
+const removeChip = (chipId) => {
+  if (chipId === 'category') filterCategory.value = ''
+  if (chipId === 'wallet') filterWallet.value = ''
+  if (chipId === 'type') filterType.value = ''
+  if (chipId === 'date') { filterDateFrom.value = ''; filterDateTo.value = '' }
+}
+
+const openDetail = (tx) => {
+  selectedTransaction.value = tx
+  showDetail.value = true
+}
+
+const closeDetail = () => {
+  showDetail.value = false
+  setTimeout(() => { selectedTransaction.value = null }, 300)
+}
+
+const formatTime = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+}
+
+const formatFullDate = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const formatDayName = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('id-ID', { weekday: 'long' })
+}
+
+const formatDateShort = (dateStr) => {
+  if (!dateStr) return '-'
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+const retryLoad = () => {
+  hasError.value = false
+  isMounted.value = false
+  setTimeout(() => { isMounted.value = true }, 800)
+}
+
+// ========== LIFECYCLE ==========
+onMounted(() => {
+  nextTick(() => {
+    setTimeout(() => {
+      isMounted.value = true
+    }, 600)
+  })
+})
+
+// Close popover on escape
+onMounted(() => {
+  const handler = (e) => {
+    if (e.key === 'Escape') {
+      closePopover()
+      if (showDetail.value) closeDetail()
+    }
+  }
+  window.addEventListener('keydown', handler)
+  onUnmounted(() => window.removeEventListener('keydown', handler))
+})
+</script>
 
 <style scoped>
 /* ============================================ */
@@ -1760,8 +1760,43 @@ onMounted(() => {
 @media (max-width: 640px) {
   .tx-page { padding: 16px 12px 110px; }
   .tx-header__title { font-size: 1.35rem; }
-  .tx-summary { grid-template-columns: 1fr; gap: 8px; }
-  .tx-summary__card { padding: 12px; }
+
+  /* ===== SUMMARY CARDS COMPACT ===== */
+  .tx-summary {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+  }
+  .tx-summary__card {
+    padding: 8px 6px !important;
+    border-radius: 10px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 4px !important;
+  }
+  .tx-summary__icon {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+  }
+  .tx-summary__icon svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .tx-summary__label {
+    font-size: 0.5rem !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap;
+  }
+  .tx-summary__value {
+    font-size: 0.7rem !important;
+    line-height: 1.2;
+  }
+  .tx-summary__info {
+    gap: 0 !important;
+    align-items: center !important;
+  }
+
   .tx-detail__time-grid { grid-template-columns: 1fr; }
   .tx-detail__amount { font-size: 1.5rem; }
 }

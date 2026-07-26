@@ -2,19 +2,41 @@
 
 # ============================================================
 # generate_project_txt.sh – Export Source Code ke .txt
-# Dijalankan di Termux (Zsh)
+# Dijalankan di Termux (Zsh) | Header output file di atas
 # ============================================================
 
 emulate -LR zsh
 setopt NULL_GLOB GLOBSTARSHORT
+
+# ─── Warna ANSI ─────────────────────────────────────────────
+C_RESET=$'\033[0m'
+C_BOLD=$'\033[1m'
+C_RED=$'\033[31m'
+C_GREEN=$'\033[32m'
+C_YELLOW=$'\033[33m'
+C_BLUE=$'\033[34m'
+C_CYAN=$'\033[36m'
+C_WHITE=$'\033[37m'
+
+# ─── Garis ───────────────────────────────────────────────────
+SEP_THICK="============================================================"
+SEP_THIN="------------------------------------------------------------"
+
+# ─── Simbol ──────────────────────────────────────────────────
+ICON_FOLDER="📁"
+ICON_FILE="📄"
+ICON_CLEAN="🧹"
+ICON_SUCCESS="✅"
+ICON_ROCKET="🚀"
+ICON_STATS="📊"
 
 # ============================================================
 # KONFIGURASI
 # ============================================================
 OUTPUT_DIR="project_export"
 MAX_LINES=1000
+MAX_LINES_TOLERANCE=100
 
-# Root files (hardcoded, relative)
 ROOT_FILES=(
     "package.json"
     "nuxt.config.ts"
@@ -23,27 +45,21 @@ ROOT_FILES=(
     "app/app.vue"
 )
 
-# Blacklist folders (relative, tanpa trailing slash)
 BLACKLIST_FOLDERS=(
     ".git"
     ".nuxt"
     "node_modules"
     "project_export"
     "0.0.0.0"
+    "public"
 )
 
-# Blacklist files (relative path tepat)
 BLACKLIST_FILES=(
     "package-lock.json"
     "generate_project_txt.sh"
     ".gitignore"
 )
 
-# ============================================================
-# DEFINISI KATEGORI
-# format: "nama|output_base|type|include|exclude_substring"
-#   type = list / glob
-# ============================================================
 KATEGORI=(
     "root|01_project_root|list|${(j: :)ROOT_FILES}|"
     "assets_i18n|02_project_assets_i18n|glob|app/assets/**/* i18n/**/*|"
@@ -53,22 +69,18 @@ KATEGORI=(
     "composables|06_project_composables|glob|app/composables/**/*|"
     "pages_main|07_project_pages_main|glob|app/pages/**/*|finance"
     "pages_finance|08_project_pages_finance|glob|app/pages/finance/**/*|"
+    "plugins|09_project_plugins|glob|app/plugins/**/*|"
 )
 
-# ============================================================
-# GLOBAL DATA
-# ============================================================
-typeset -A FILE_LINES            # key: file path, value: jumlah baris
-typeset -A CAT_FILES             # key: nama kategori, value: string newline-separated files
-typeset -A CAT_TOTAL_LINES       # total baris per kategori
-typeset -a OUTPUT_SUMMARY        # ringkasan: "outfile|baris|jumlah_file"
+typeset -A FILE_LINES
+typeset -A CAT_FILES
+typeset -A CAT_TOTAL_LINES
+typeset -a OUTPUT_SUMMARY
 
 # ============================================================
 # FUNGSI PEMBANTU
 # ============================================================
 
-# Mendapatkan daftar file untuk satu kategori
-# Hasil dikembalikan sebagai string newline-separated di stdout
 get_files_for_category() {
     local name=$1 type=$2 include_str=$3 exclude_str=$4
     local include_patterns=(${=include_str})
@@ -76,15 +88,12 @@ get_files_for_category() {
     local files=()
 
     if [[ $type == "list" ]]; then
-        # include_patterns berisi path file eksplisit
         for f in $include_patterns; do
             [[ -f $f ]] || continue
-            # cek blacklist file
             local skip=0
             for blf in $BLACKLIST_FILES; do
                 [[ $f == $blf ]] && skip=1 && break
             done
-            # cek blacklist folder
             if [[ $skip -eq 0 ]]; then
                 for bd in $BLACKLIST_FOLDERS; do
                     if [[ $f == $bd/* || $f == $bd ]]; then
@@ -96,26 +105,22 @@ get_files_for_category() {
             (( skip )) || files+=("$f")
         done
     else
-        # type == glob
         for pattern in $include_patterns; do
             local matches=(${~pattern}(N))
             for f in $matches; do
                 [[ -f $f ]] || continue
                 local skip=0
-                # blacklist folder
                 for bd in $BLACKLIST_FOLDERS; do
                     if [[ $f == $bd/* || $f == $bd ]]; then
                         skip=1
                         break
                     fi
                 done
-                # blacklist file
                 if [[ $skip -eq 0 ]]; then
                     for blf in $BLACKLIST_FILES; do
                         [[ $f == $blf ]] && skip=1 && break
                     done
                 fi
-                # exclude substring (subfolder spesifik)
                 if [[ $skip -eq 0 && -n $exclude_substrings ]]; then
                     for ex in $exclude_substrings; do
                         if [[ $f == */${ex}/* ]]; then
@@ -129,13 +134,11 @@ get_files_for_category() {
         done
     fi
 
-    # Urutkan dan gabung dengan newline
     if (( ${#files} > 0 )); then
         print -l ${(o)files}
     fi
 }
 
-# Menghitung baris tiap file (simpan di FILE_LINES global)
 count_lines() {
     local f=$1
     if [[ -z ${FILE_LINES[$f]} ]]; then
@@ -143,8 +146,6 @@ count_lines() {
     fi
 }
 
-# Partisi array file menjadi beberapa part berdasarkan MAX_LINES
-# Simpan hasil di array global PARTITIONS (tiap elemen = string newline-separated)
 partition_files() {
     local files=("$@")
     PARTITIONS=()
@@ -154,7 +155,7 @@ partition_files() {
     for f in "${files[@]}"; do
         count_lines "$f"
         local fl=${FILE_LINES[$f]}
-        if (( current_part_lines + fl > MAX_LINES && ${#current_part_files} > 0 )); then
+        if (( current_part_lines + fl > MAX_LINES + MAX_LINES_TOLERANCE && ${#current_part_files} > 0 )); then
             PARTITIONS+=("${(F)current_part_files}")
             current_part_files=()
             current_part_lines=0
@@ -167,7 +168,6 @@ partition_files() {
     fi
 }
 
-# Menulis satu file output dengan header dan isi file
 write_output_file() {
     local outfile=$1
     shift
@@ -175,6 +175,11 @@ write_output_file() {
     local outpath="${OUTPUT_DIR}/${outfile}"
 
     exec 3>"$outpath"
+    # Header nama file output di paling atas
+    print -u3 "============================================================"
+    print -u3 "OUTPUT FILE: ${outfile}"
+    print -u3 "============================================================"
+    print -u3 ""
     for f in "${files[@]}"; do
         print -u3 "============================================================"
         print -u3 "FILE: $f"
@@ -189,7 +194,24 @@ write_output_file() {
     exec 3>&-
 }
 
-# Mencetak log per file output
+# ============================================================
+# UI SEDERHANA & RAPI
+# ============================================================
+
+print_section_header() {
+    local icon="$1" title="$2"
+    echo ""
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+    echo -e "${C_BOLD}${C_WHITE}  ${icon}  ${title}${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+}
+
+print_property() {
+    local label="$1"
+    local value="$2"
+    printf "  ${C_BOLD}%-20s${C_RESET} : ${C_GREEN}%s${C_RESET}\n" "$label" "$value"
+}
+
 print_part_log() {
     local outfile=$1 category_label=$2
     shift 2
@@ -200,45 +222,48 @@ print_part_log() {
     for f in "${files[@]}"; do
         local lns=${FILE_LINES[$f]}
         total_lines=$(( total_lines + lns ))
-        entries+=("$lns\t$f")
+        entries+=("$(printf "${C_YELLOW}%6d${C_RESET}  %s" $lns "$f")")
     done
 
     local sisa=$(( MAX_LINES - total_lines ))
 
-    print "============================================================"
-    print "${outfile}"
-    print "============================================================"
-    print "Kategori      : ${category_label}"
-    print "Jumlah File   : ${#files}"
-    print "Total Baris   : ${total_lines}"
-    print "Target        : ${MAX_LINES}"
-    print "Sisa          : ${sisa}"
-    print "------------------------------------------------------------"
+    echo ""
+    echo -e "${C_BOLD}${C_BLUE}${SEP_THICK}${C_RESET}"
+    echo -e "${C_BOLD}${C_WHITE}  📄 OUTPUT   : ${C_CYAN}${outfile}${C_RESET}"
+    echo -e "${C_BOLD}${C_WHITE}  📂 KATEGORI : ${C_CYAN}${category_label}${C_RESET}"
+    echo -e "${C_BOLD}${C_BLUE}${SEP_THIN}${C_RESET}"
+    printf "  ${C_BOLD}%6s  %-s${C_RESET}\n" "BARIS" "FILE"
+    echo -e "${C_BLUE}${SEP_THIN}${C_RESET}"
+
     for entry in "${entries[@]}"; do
-        print "$entry"
+        echo -e "  $entry"
     done
-    print ""
+
+    echo -e "${C_BLUE}${SEP_THIN}${C_RESET}"
+    printf "  ${C_BOLD}%6s  ${C_GREEN}%d baris${C_RESET}\n" "TOTAL" "$total_lines"
+    printf "  ${C_BOLD}%6s  %d baris${C_RESET}\n" "TARGET" "$MAX_LINES"
+
+    if (( sisa >= 0 )); then
+        printf "  ${C_BOLD}%6s  ${C_GREEN}%d baris${C_RESET}\n" "SISA" "$sisa"
+    else
+        printf "  ${C_BOLD}%6s  ${C_RED}%d baris (melebihi target)${C_RESET}\n" "LEBIH" "$((-sisa))"
+    fi
+    echo -e "${C_BOLD}${C_BLUE}${SEP_THICK}${C_RESET}"
 }
 
 # ============================================================
-# TAHAP 1: KUMPULKAN SEMUA FILE, HITUNG BARIS
+# TAHAP 1: KUMPULKAN FILE & HITUNG BARIS
 # ============================================================
 for entry in $KATEGORI; do
     IFS='|' read -r name output_base type include_str exclude_str <<< "$entry"
-
-    # Dapatkan daftar file
     files_str=$(get_files_for_category "$name" "$type" "$include_str" "$exclude_str")
     files=()
     if [[ -n $files_str ]]; then
         files=(${(f)files_str})
     fi
-
-    # Hitung baris tiap file
     for f in "${files[@]}"; do
         count_lines "$f"
     done
-
-    # Simpan data kategori
     CAT_FILES[$name]=${(F)files}
     total_lines=0
     for f in "${files[@]}"; do
@@ -247,141 +272,110 @@ for entry in $KATEGORI; do
     CAT_TOTAL_LINES[$name]=$total_lines
 done
 
-# Partisi khusus untuk pages_finance
-pages_files_str=$CAT_FILES[pages_finance]
-pages_files=()
-[[ -n $pages_files_str ]] && pages_files=(${(f)pages_files_str})
-partition_files "${pages_files[@]}"
-PAGES_FINANCE_PARTS=("${PARTITIONS[@]}")
-
 # ============================================================
-# TAHAP 2: HITUNG STATISTIK GLOBAL
+# TAHAP 2: STATISTIK GLOBAL
 # ============================================================
-# Total source file (unique)
 total_source_files=${#FILE_LINES}
-# Total source lines
 total_source_lines=0
 for lns in ${(v)FILE_LINES}; do
     total_source_lines=$(( total_source_lines + lns ))
 done
 
-# Total output file
 total_output_files=0
 for entry in $KATEGORI; do
     IFS='|' read -r name _ <<< "$entry"
-    if [[ $name == "pages_finance" ]]; then
-        total_output_files=$(( total_output_files + ${#PAGES_FINANCE_PARTS} ))
-    else
-        total_output_files=$(( total_output_files + 1 ))
-    fi
+    files_str=$CAT_FILES[$name]
+    [[ -z $files_str ]] && continue
+    files=(${(f)files_str})
+    partition_files "${files[@]}"
+    total_output_files=$(( total_output_files + ${#PARTITIONS} ))
 done
 
 # ============================================================
-# CETAK PROJECT EXPORT REPORT
+# CETAK LAPORAN AWAL
 # ============================================================
-print "============================================================"
-print "PROJECT EXPORT REPORT"
-print "============================================================"
-print "Output Folder  : ${OUTPUT_DIR}"
-print "Target/Part    : ${MAX_LINES} baris"
-print "Total Source File : ${total_source_files}"
-print "Total Source Line : ${total_source_lines}"
-print "Total Output File : ${total_output_files}"
-print "============================================================"
+print_section_header "${ICON_STATS}" "PROJECT EXPORT REPORT"
+print_property "Output Folder" "${OUTPUT_DIR}"
+print_property "Target/Part" "${MAX_LINES} baris"
+print_property "Toleransi (+)" "${MAX_LINES_TOLERANCE} baris"
+print_property "Total Source File" "${total_source_files}"
+print_property "Total Source Line" "${total_source_lines}"
+print_property "Prediksi Output" "${total_output_files} file"
+echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
 
 # ============================================================
-# TAHAP 3: PERSIAPKAN FOLDER OUTPUT (IDEMPOTENT)
+# TAHAP 3: PERSIAPKAN FOLDER OUTPUT
 # ============================================================
 if [[ -d $OUTPUT_DIR ]]; then
-    print ""
-    print "============================================================"
-    print "MEMBERSIHKAN OUTPUT LAMA"
-    print "============================================================"
-    print "Folder Output : ${OUTPUT_DIR}"
-    print "Status         : Ditemukan"
+    print_section_header "${ICON_CLEAN}" "MEMBERSIHKAN OUTPUT LAMA"
+    print_property "Folder Output" "${OUTPUT_DIR}"
+    print_property "Status" "Ditemukan"
     count=$(find $OUTPUT_DIR -mindepth 1 | wc -l)
-    print "Menghapus hasil export sebelumnya..."
+    echo -e "  ${C_YELLOW}Menghapus hasil export sebelumnya...${C_RESET}"
     find $OUTPUT_DIR -mindepth 1 -delete 2>/dev/null
-    print "✓ ${count} file berhasil dihapus"
-    print "✓ Folder berhasil dibersihkan"
-    print "============================================================"
-    print "MEMULAI EXPORT BARU"
-    print "============================================================"
+    echo -e "  ${ICON_SUCCESS} ${C_GREEN}${count} file berhasil dihapus${C_RESET}"
+    echo -e "  ${ICON_SUCCESS} ${C_GREEN}Folder berhasil dibersihkan${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+    echo -e "${C_BOLD}${C_WHITE}  ${ICON_ROCKET} MEMULAI EXPORT BARU${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
 else
     mkdir -p $OUTPUT_DIR
-    print ""
-    print "============================================================"
-    print "MENYIAPKAN OUTPUT"
-    print "============================================================"
-    print "Folder Output : ${OUTPUT_DIR}"
-    print "Status         : Belum ditemukan"
-    print "✓ Membuat folder ${OUTPUT_DIR}"
-    print "============================================================"
-    print "MEMULAI EXPORT"
-    print "============================================================"
+    print_section_header "${ICON_FOLDER}" "MENYIAPKAN OUTPUT"
+    print_property "Folder Output" "${OUTPUT_DIR}"
+    print_property "Status" "Belum ditemukan"
+    echo -e "  ${ICON_SUCCESS} ${C_GREEN}Membuat folder ${OUTPUT_DIR}${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+    echo -e "${C_BOLD}${C_WHITE}  ${ICON_ROCKET} MEMULAI EXPORT${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
 fi
 
 # ============================================================
-# TAHAP 4: PROSES EXPORT PER KATEGORI
+# TAHAP 4: PROSES EXPORT
 # ============================================================
 for entry in $KATEGORI; do
     IFS='|' read -r name output_base type include_str exclude_str <<< "$entry"
     files_str=$CAT_FILES[$name]
-
-    if [[ $name == "pages_finance" ]]; then
-        # Kategori dengan kemungkinan split
-        if [[ -z $files_str ]]; then
-            # Tidak ada file, lewati
-            continue
+    [[ -z $files_str ]] && continue
+    files=(${(f)files_str})
+    partition_files "${files[@]}"
+    part_num=0
+    for part_str in "${PARTITIONS[@]}"; do
+        part_files=(${(f)part_str})
+        part_num=$(( part_num + 1 ))
+        if (( ${#PARTITIONS} == 1 )); then
+            outfile="${output_base}.txt"
+        else
+            outfile="$(printf "%s_%02d.txt" "$output_base" $part_num)"
         fi
-        part_num=0
-        for part_str in "${PAGES_FINANCE_PARTS[@]}"; do
-            part_files=(${(f)part_str})
-            part_num=$(( part_num + 1 ))
-            if (( ${#PAGES_FINANCE_PARTS} == 1 )); then
-                outfile="${output_base}.txt"
-            else
-                outfile="$(printf "%s_%02d.txt" "$output_base" $part_num)"
-            fi
-            # Tulis output
-            write_output_file "$outfile" "${part_files[@]}"
-            # Log
-            print_part_log "$outfile" "$name" "${part_files[@]}"
-            # Simpan untuk ringkasan
-            part_lines=0
-            for f in "${part_files[@]}"; do
-                part_lines=$(( part_lines + FILE_LINES[$f] ))
-            done
-            OUTPUT_SUMMARY+=("${outfile}|${part_lines}|${#part_files}")
+        write_output_file "$outfile" "${part_files[@]}"
+        print_part_log "$outfile" "$name" "${part_files[@]}"
+        part_lines=0
+        for f in "${part_files[@]}"; do
+            part_lines=$(( part_lines + FILE_LINES[$f] ))
         done
-    else
-        # Kategori biasa, satu file output
-        if [[ -z $files_str ]]; then
-            continue
-        fi
-        files=(${(f)files_str})
-        outfile="${output_base}.txt"
-        write_output_file "$outfile" "${files[@]}"
-        print_part_log "$outfile" "$name" "${files[@]}"
-        # Ringkasan
-        OUTPUT_SUMMARY+=("${outfile}|${CAT_TOTAL_LINES[$name]}|${#files}")
-    fi
+        OUTPUT_SUMMARY+=("${outfile}|${part_lines}|${#part_files}")
+    done
 done
 
 # ============================================================
 # TAHAP 5: RINGKASAN AKHIR
 # ============================================================
-print "============================================================"
-print "RINGKASAN"
-print "============================================================"
+print_section_header "${ICON_STATS}" "RINGKASAN OUTPUT"
+printf "  ${C_BOLD}%-40s %6s  %4s${C_RESET}\n" "NAMA FILE" "BARIS" "FILE"
+echo -e "${C_BLUE}${SEP_THIN}${C_RESET}"
 for sum in "${OUTPUT_SUMMARY[@]}"; do
     IFS='|' read -r fname flines fcount <<< "$sum"
-    printf "%-40s %6d baris %4d file\n" "$fname" "$flines" "$fcount"
+    printf "  %-40s ${C_YELLOW}%6d${C_RESET}  ${C_GREEN}%4d${C_RESET}\n" "$fname" "$flines" "$fcount"
 done
-print "============================================================"
-print "SELESAI"
-print "============================================================"
-print "Folder Output     : ${OUTPUT_DIR}"
-print "Jumlah Output     : ${total_output_files}"
-print "Jumlah Source File: ${total_source_files}"
-print "Total Baris       : ${total_source_lines}"
+echo -e "${C_BLUE}${SEP_THIN}${C_RESET}"
+printf "  ${C_BOLD}%-40s ${C_YELLOW}%6d${C_RESET}  ${C_GREEN}%4d${C_RESET}\n" "TOTAL" "$total_source_lines" "$total_source_files"
+echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+
+echo ""
+echo -e "${C_BOLD}${C_WHITE}  ${ICON_SUCCESS} SELESAI${C_RESET}"
+echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
+print_property "Folder Output" "${OUTPUT_DIR}"
+print_property "Jumlah Output" "${#OUTPUT_SUMMARY} file"
+print_property "Total Source" "${total_source_files} file"
+print_property "Total Baris" "${total_source_lines} baris"
+echo -e "${C_BOLD}${C_CYAN}${SEP_THICK}${C_RESET}"
