@@ -37,7 +37,9 @@ class BackupNotifier(private val context: Context) {
     ) {
         setSmallIcon(R.drawable.ic_komikku)
         setColor(ContextCompat.getColor(context, R.color.ic_launcher))
-        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.komikku))
+        // Rout --> Modified by ROut: use rout_logo_text for restore notification large icon
+        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.rout_logo_text))
+        // Rout <-
         setAutoCancel(false)
         setOngoing(true)
         setOnlyAlertOnce(true)
@@ -48,7 +50,9 @@ class BackupNotifier(private val context: Context) {
     ) {
         setSmallIcon(R.drawable.ic_komikku)
         setColor(ContextCompat.getColor(context, R.color.ic_launcher))
-        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.komikku))
+        // Rout --> Modified by ROut: use rout_logo_text for restore notification large icon
+        setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.rout_logo_text))
+        // Rout <-
         setAutoCancel(false)
     }
 

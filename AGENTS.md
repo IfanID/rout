@@ -12,14 +12,15 @@ Rout is an Android manga reader (min SDK 31, target SDK 36, JVM 17 / Kotlin) for
 
 | Rule | Required behavior |
 |------|-------------------|
-| Response | Selalu gunakan **Bahasa Indonesia** dalam menjawab setiap pertanyaan atau memberikan penjelasan kepada pengguna. |
+| Response | Always use **Bahasa Indonesia** when answering questions or explaining things to the user. |
+| Commit Message | Always use **Bahasa Indonesia** when creating and proposing commit messages (*git commit message*). |
 
 ### Git
 
 | Rule | Required behavior |
 |------|-------------------|
 | Branch | Create a **feature branch** for the task (`git checkout -b <type>/<short-description>`). |
-| Commit | **OK** on a feature branch when work is ready. **Never** commit directly to `master` / `main` unless the user explicitly asks. |
+| Commit | **OK** on a feature branch when work is ready. **Never** commit directly to `master` / `main` unless the user explicitly asks. **Commit messages must always be written in Bahasa Indonesia**. |
 | Push | **OK** to push the **current feature branch** when work is ready. **Never** push to `master` / `main` unless the user explicitly asks. |
 
 Before `git push`, confirm the current branch is not `master` or `main` (`git branch --show-current`).
@@ -46,27 +47,27 @@ Before `git push`, confirm the current branch is not `master` or `main` (`git br
 
 ---
 
-## Manajemen String & Internasionalisasi (i18n-rout)
+## String Management & Internationalization (i18n-rout)
 
-🔹 Modul khusus untuk string dan internasionalisasi ROut adalah `i18n-rout/`.
+🔹 The dedicated module for ROut strings and internationalization is `i18n-rout/`.
 
-🔹 Gunakan **Resource Class `ROT`** untuk mengakses resource string ROut.
+🔹 Use the **`ROT` Resource Class** to access ROut string resources.
 
-🔹 Import `ROT` menggunakan:
+🔹 Import `ROT` using:
 
 ```kotlin
 import tachiyomi.i18n.rout.ROT
 ```
 
-🔹 Folder resource utama:
+🔹 Main resource folder:
 
 ```text
 i18n-rout/src/commonMain/moko-resources/base/
 ```
 
-### Lokal yang didukung
+### Supported Locales
 
-🔹 Untuk `i18n-rout`, **ketiga lokal wajib selalu dijaga tetap sinkron secara bersamaan**:
+🔹 For `i18n-rout`, **all three locales must always be kept in sync simultaneously**:
 
 ```text
 base/  → English
@@ -74,11 +75,11 @@ in/    → Indonesian
 ko/    → Korean
 ```
 
-🔹 Setiap kali menambahkan, mengubah, atau menghapus string ROut, **perubahan tersebut harus diterapkan pada ketiga lokal tersebut**.
+🔹 Whenever adding, modifying, or removing ROut strings, **these changes must be applied to all three locales**.
 
-🔹 Jangan meninggalkan string baru hanya pada satu atau dua lokal.
+🔹 Do not leave new strings in only one or two locales.
 
-🔹 Pastikan setiap resource memiliki pasangan yang sesuai pada:
+🔹 Ensure each resource has a corresponding entry in:
 
 ```text
 i18n-rout/src/commonMain/moko-resources/base/
@@ -86,9 +87,9 @@ i18n-rout/src/commonMain/moko-resources/in/
 i18n-rout/src/commonMain/moko-resources/ko/
 ```
 
-### Larangan modul i18n lain
+### Other i18n Module Restrictions
 
-🔹 **Jangan menambahkan string khusus ROut** ke modul berikut:
+🔹 **Do not add ROut-specific strings** to the following modules:
 
 ```text
 i18n/
@@ -96,27 +97,27 @@ i18n-kmk/
 i18n-sy/
 ```
 
-🔹 Semua string yang khusus dibuat untuk fitur atau UI ROut **wajib berada di `i18n-rout/`**.
+🔹 All strings created specifically for ROut features or UI **must reside in `i18n-rout/`**.
 
-🔹 Modul `i18n/`, `i18n-kmk/`, dan `i18n-sy/` hanya boleh digunakan untuk resource yang memang berasal dari atau menjadi tanggung jawab modul tersebut.
+🔹 The `i18n/`, `i18n-kmk/`, and `i18n-sy/` modules should only be used for resources originating from or belonging to those respective modules.
 
-### Aturan penggunaan
+### Usage Rules
 
-🔹 Untuk string ROut di source code, gunakan `ROT` dari `i18n-rout`:
+🔹 For ROut strings in source code, use `ROT` from `i18n-rout`:
 
 ```kotlin
 import tachiyomi.i18n.rout.ROT
 ```
 
-🔹 Jangan membuat string ROut hardcoded jika string tersebut seharusnya dapat diterjemahkan.
+🔹 Do not hardcode ROut strings if they should be translatable.
 
-🔹 Jangan memindahkan string ROut ke modul i18n lain hanya karena resource tersebut sudah memiliki struktur atau file yang serupa.
+🔹 Do not move ROut strings to other i18n modules simply because those modules have a similar structure or file.
 
-### Aturan inti
+### Core Rules
 
-🔹 **ROut strings → `i18n-rout/` → `ROT` → `base/`, `in/`, dan `ko/` selalu sinkron.**
+🔹 **ROut strings → `i18n-rout/` → `ROT` → `base/`, `in/`, and `ko/` always in sync.**
 
-🔹 **Jangan menambahkan string khusus ROut ke `i18n/`, `i18n-kmk/`, atau `i18n-sy/`.**
+🔹 **Do not add ROut-specific strings to `i18n/`, `i18n-kmk/`, or `i18n-sy/`.**
 
 ### Formatting & build verification
 
@@ -131,7 +132,7 @@ import tachiyomi.i18n.rout.ROT
 - **Do not** skip `spotlessCheck` when verifying changes.
 - If `spotlessCheck` fails, run `spotlessApply` and re-run `spotlessCheck`.
 - On Cloud VM, export `ANDROID_HOME` and `JAVA_HOME` first (see [Cursor Cloud](#cursor-cloud-specific-instructions)).
-- **Markdown files (`.md`):** If edits are restricted to Markdown (`.md`) documentation files (e.g., `README.md`, `AGENTS.md`), building or running Gradle verification (`assembleDebug`, `spotlessCheck`, etc.) is **not required**.
+- **Markdown files (`.md`):** If edits are restricted to Markdown (`.md`) documentation files (e.g., `README.md`, `AGENTS.md`), **never run Gradle build or verification commands** (`assembleDebug`, `spotlessCheck`, `spotlessApply`, etc.) as they are not related to source code.
 
 ---
 
@@ -251,13 +252,13 @@ JDK **17**.
 ### ROut modification marker
 
 🔹 `// Rout -->` identifies code that was **added or modified by ROut**.
-🔹 Every `// Rout -->` marker **must contain a short explanation on the same line** describing what ROut changed.
+🔹 Every `// Rout -->` marker **must contain a short explanation in Bahasa Indonesia on the same line** describing what ROut changed.
 🔹 `// Rout <-` is only the closing marker and does not need an explanation.
 
 🔹 Use this exact structure:
 
 ```kotlin
-// Rout --> <penjelasan perubahan ROut>
+// Rout --> <penjelasan perubahan ROut dalam Bahasa Indonesia>
 // ... kode yang ditambahkan atau diubah ...
 // Rout <-
 ```
@@ -309,7 +310,7 @@ Change made by ROut
 fun loadChapter() {
     loadData()
 
-    // Rout --> Added by ROut: synchronize reading progress
+    // Rout --> Ditambahkan oleh ROut: sinkronisasi progres membaca
     syncProgress()
     // Rout <-
 }
@@ -323,7 +324,7 @@ fun loadChapter() {
 ```kotlin
 // KMK -->
 
-// Rout --> Modified by ROut: use ROut-specific chapter selection
+// Rout --> Dimodifikasi oleh ROut: gunakan pemilihan chapter khusus ROut
 val selected = selectRoutChapter(chapter)
 // Rout <-
 
@@ -341,7 +342,7 @@ process(selected)
 ```kotlin
 // KMK -->
 
-// Rout --> Replaced by ROut: use ROut-specific chapter handling
+// Rout --> Menggantikan kode upstream: gunakan penanganan chapter khusus ROut
 fun loadChapter() {
     routChapterHandler()
 }
@@ -359,7 +360,7 @@ fun loadChapter() {
 ❌ Bad:
 
 ```kotlin
-// Rout --> Modified by ROut: changed one small part
+// Rout --> Dimodifikasi oleh ROut: mengubah bagian kecil
 // entire unchanged upstream function
 // Rout <-
 ```
@@ -371,7 +372,7 @@ fun loadChapter() {
 
 existingUpstreamCode()
 
-// Rout --> Modified by ROut: add ROut-specific validation
+// Rout --> Ditambahkan oleh ROut: tambahkan validasi khusus ROut
 routSpecificValidation()
 // Rout <-
 
@@ -382,12 +383,12 @@ moreExistingUpstreamCode()
 
 ### Marker explanation
 
-🔹 Every `// Rout -->` marker must explain the ROut change on the **same line**.
+🔹 Every `// Rout -->` marker must explain the ROut change in **Bahasa Indonesia** on the **same line**.
 
 🔹 Prefer:
 
 ```kotlin
-// Rout --> Added by ROut: synchronize progress when leaving reader
+// Rout --> Ditambahkan oleh ROut: sinkronisasi progres saat keluar dari reader
 syncProgress()
 // Rout <-
 ```
@@ -395,7 +396,7 @@ syncProgress()
 🔹 Or:
 
 ```kotlin
-// Rout --> Modified by ROut: use merged chapter progress
+// Rout --> Dimodifikasi oleh ROut: gunakan progres chapter gabungan
 val progress = mergedProgress
 // Rout <-
 ```
@@ -440,7 +441,7 @@ val progress = mergedProgress
 🔹 The purpose of the markers is to preserve **both source origin and ROut modification history**.
 
 ```text
-KMK / SY / EXH
+KMK / SW / SY / EXH
     = where the original code came from
 
 Rout
@@ -466,7 +467,7 @@ Package roots: `eu.kanade.tachiyomi.*` (legacy UI), `tachiyomi.*` (domain/data),
 
 ## Tests
 
-- Unit tests: `domain/src/test/`; app: `app/src/test/.../MigratorTest.kt`. No broad UI test suite.
+- Unit tests: `domain/src/test/`; app: `app/src/test/.../MigratorTest.kt`. On broad UI test suite.
 
 ---
 
@@ -506,8 +507,8 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 | Task | Command |
 |------|---------|
-| **Required format fix** | `./gradlew spotlessApply` (run first after code edits) |
-| **Required format gate** | `./gradlew spotlessCheck` (must pass before task is done) |
+| **Required format fix** | `./gradlew spotlessApply` (run first after work edits) |
+| **Required format label** | `./gradlew spotlessCheck` (must pass before task is done) |
 | Debug APK build | `./gradlew assembleDebug` |
 | Preview APK build (CI) | `./gradlew assemblePreview` |
 | Unit tests (CI) | `./gradlew testReleaseUnitTest` |
@@ -516,8 +517,4 @@ export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 ### Gotchas
 
-- First Gradle build downloads ~1 GB of dependencies; subsequent builds use the Gradle cache and are much faster.
-- `local.properties` is `.gitignore`d — it must be recreated if missing (the update script handles this).
-- No Android emulator or device is available on the Cloud VM, so `installDebug` will fail. Build verification is done via `assembleDebug`.
-- `google-services.json` and `client_secrets.json` are not present (CI secrets); builds without `-Pinclude-telemetry` succeed without them.
-- Gradle daemon may use significant memory (`-Xmx4g` in `gradle.properties`). If OOM occurs, kill and restart the daemon with `./gradlew --stop`.
+- First updated gradle dependencies, etc.
