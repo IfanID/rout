@@ -1,12 +1,18 @@
-# Komikku – AI Agent Guide
+# Rout – AI Agent Guide
 
-Komikku is an Android manga reader (min SDK 26, target SDK 36, JVM 17 / Kotlin) forked from **Mihon** + **TachiyomiSY**. Stack: Jetpack Compose + Material3, Voyager navigation, SQLDelight, Injekt DI. `applicationId`: `app.komikku`.
+Rout is an Android manga reader (min SDK 31, target SDK 36, JVM 17 / Kotlin) forked from **Mihon** + **TachiyomiSY**. Stack: Jetpack Compose + Material3, Voyager navigation, SQLDelight, Injekt DI. `applicationId`: `app.komikku`.
 
 ---
 
 ## Mandatory rules for AI agents
 
 **Read this section before every change.** These rules override shortcuts (e.g. copying nearby `MR` imports or only running `compileDebugKotlin`).
+
+### Language
+
+| Rule | Required behavior |
+|------|-------------------|
+| Response | Selalu gunakan **Bahasa Indonesia** dalam menjawab setiap pertanyaan atau memberikan penjelasan kepada pengguna. |
 
 ### Git
 
@@ -48,6 +54,7 @@ Before `git push`, confirm the current branch is not `master` or `main` (`git br
 - **Do not** skip `spotlessCheck` when verifying changes.
 - If `spotlessCheck` fails, run `spotlessApply` and re-run `spotlessCheck`.
 - On Cloud VM, export `ANDROID_HOME` and `JAVA_HOME` first (see [Cursor Cloud](#cursor-cloud-specific-instructions)).
+- **Markdown files (`.md`):** If edits are restricted to Markdown (`.md`) documentation files (e.g., `README.md`, `AGENTS.md`), building or running Gradle verification (`assembleDebug`, `spotlessCheck`, etc.) is **not required**.
 
 ---
 
@@ -147,13 +154,234 @@ JDK **17**.
 
 ## Fork-origin markers
 
-Preserve inline blocks when editing:
+🔹 Preserve and maintain inline origin and modification markers when editing source code.
 
 ```kotlin
 // KMK -->  … // KMK <--   Komikku
 // SY -->   … // SY <--    TachiyomiSY
-// EXH -->  … // EXH <--   E-Hentai / exh (existing); prefer KMK for new Komikku-only code
+// EXH -->  … // EXH <--   E-Hentai / exh
+// Rout --> <penjelasan perubahan ROut>
+// Rout <-
 ```
+
+### Origin markers
+
+🔹 `// KMK --> … // KMK <--` identifies code originating from Komikku.
+🔹 `// SY --> … // SY <--` identifies code originating from TachiyomiSY.
+🔹 `// EXH --> … // EXH <--` identifies existing code originating from E-Hentai / exh.
+🔹 Do not modify the existing format, names, or meaning of these upstream markers.
+
+### ROut modification marker
+
+🔹 `// Rout -->` identifies code that was **added or modified by ROut**.
+🔹 Every `// Rout -->` marker **must contain a short explanation on the same line** describing what ROut changed.
+🔹 `// Rout <-` is only the closing marker and does not need an explanation.
+
+🔹 Use this exact structure:
+
+```kotlin
+// Rout --> <penjelasan perubahan ROut>
+// ... kode yang ditambahkan atau diubah ...
+// Rout <-
+```
+
+### What must be marked with `// Rout`
+
+🔹 Mark **every change made by ROut**, not only completely new ROut features.
+
+🔹 This includes:
+
+* new ROut-specific code;
+* modifications to existing upstream code;
+* additions inside existing upstream code;
+* changes to existing logic;
+* replacements of existing logic;
+* changes to conditions or behavior;
+* ROut-specific bug fixes;
+* ROut-specific UI changes;
+* ROut-specific optimizations;
+* ROut-specific integrations;
+* any other modification introduced by ROut.
+
+### Preserve upstream origin markers
+
+🔹 If ROut modifies code that originally came from Komikku, TachiyomiSY, or E-Hentai / exh, **keep the original upstream marker**.
+
+🔹 Do **not** replace `// KMK`, `// SY`, or `// EXH` with `// Rout`.
+
+🔹 A piece of code can legitimately have both an upstream origin marker and a ROut modification marker.
+
+🔹 The markers represent different information:
+
+```text
+KMK / SY / EXH
+    ↓
+Original source of the code
+
+Rout
+    ↓
+Change made by ROut
+```
+
+### Example: ROut adds code to upstream code
+
+🔹 If only part of an existing Komikku block is changed, mark only the ROut addition or modification.
+
+```kotlin
+// KMK -->
+fun loadChapter() {
+    loadData()
+
+    // Rout --> Added by ROut: synchronize reading progress
+    syncProgress()
+    // Rout <-
+}
+// KMK <--
+```
+
+🔹 Do **not** wrap the entire function in `// Rout` when most of the function remains unchanged upstream code.
+
+### Example: ROut modifies existing upstream logic
+
+```kotlin
+// KMK -->
+
+// Rout --> Modified by ROut: use ROut-specific chapter selection
+val selected = selectRoutChapter(chapter)
+// Rout <-
+
+process(selected)
+
+// KMK <--
+```
+
+🔹 The `KMK` marker remains because the original code came from Komikku, while the `Rout` marker records the modification made by ROut.
+
+### Example: ROut replaces an upstream implementation
+
+🔹 If ROut completely replaces an existing upstream implementation, keep the original upstream marker and mark the replacement as a ROut modification.
+
+```kotlin
+// KMK -->
+
+// Rout --> Replaced by ROut: use ROut-specific chapter handling
+fun loadChapter() {
+    routChapterHandler()
+}
+// Rout <-
+
+// KMK <--
+```
+
+### Marker placement
+
+🔹 Keep the `// Rout --> <penjelasan>` marker as close as practical to the actual ROut change.
+
+🔹 Do not wrap large amounts of unchanged upstream code.
+
+❌ Bad:
+
+```kotlin
+// Rout --> Modified by ROut: changed one small part
+// entire unchanged upstream function
+// Rout <-
+```
+
+✅ Preferred:
+
+```kotlin
+// KMK -->
+
+existingUpstreamCode()
+
+// Rout --> Modified by ROut: add ROut-specific validation
+routSpecificValidation()
+// Rout <-
+
+moreExistingUpstreamCode()
+
+// KMK <--
+```
+
+### Marker explanation
+
+🔹 Every `// Rout -->` marker must explain the ROut change on the **same line**.
+
+🔹 Prefer:
+
+```kotlin
+// Rout --> Added by ROut: synchronize progress when leaving reader
+syncProgress()
+// Rout <-
+```
+
+🔹 Or:
+
+```kotlin
+// Rout --> Modified by ROut: use merged chapter progress
+val progress = mergedProgress
+// Rout <-
+```
+
+🔹 Do not use an unexplained opening marker:
+
+```kotlin
+// Rout -->
+```
+
+### Marker integrity
+
+🔹 Existing markers are part of the project's source-origin and modification history.
+
+🔹 When editing code:
+
+* Never remove an existing `// KMK` marker unless the corresponding upstream code is intentionally removed.
+* Never remove an existing `// SY` marker unless the corresponding upstream code is intentionally removed.
+* Never remove an existing `// EXH` marker unless the corresponding upstream code is intentionally removed.
+* Never remove an existing `// Rout` marker unless the corresponding ROut modification is intentionally removed.
+* Never rename existing markers.
+* Never replace an upstream marker with a ROut marker.
+* Never merge unrelated origin markers.
+* Never place unchanged upstream code inside a ROut marker.
+* Never remove a marker merely because the surrounding code is refactored.
+* If refactoring moves code, preserve the marker's meaning and keep it associated with the correct code.
+
+### New code
+
+🔹 New code specifically created by ROut must use:
+
+```kotlin
+// Rout --> Added by ROut: <explanation>
+// ...
+// Rout <-
+```
+
+🔹 Do not use `// KMK`, `// SY`, or `// EXH` for newly created ROut code unless the code genuinely originates from that project.
+
+### Core rule
+
+🔹 The purpose of the markers is to preserve **both source origin and ROut modification history**.
+
+```text
+KMK / SY / EXH
+    = where the original code came from
+
+Rout
+    = what ROut added or modified
+```
+
+🔹 Therefore, when ROut modifies upstream code, **both markers must be preserved**.
+
+🔹 The final source should make it possible to determine:
+
+1. where the original code came from;
+2. which part was changed by ROut;
+3. what ROut changed;
+4. where the ROut modification begins and ends.
+
+🔹 **Never sacrifice the original source marker just to mark a ROut modification.**
+
+🔹 **Every `// Rout -->` must contain its explanation on the same line, while `// Rout <-` remains only the closing marker.**
 
 Package roots: `eu.kanade.tachiyomi.*` (legacy UI), `tachiyomi.*` (domain/data), `mihon.*` (Mihon upstream), `exh.*` (enhanced sources).
 
