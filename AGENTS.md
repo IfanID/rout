@@ -28,18 +28,95 @@ Before `git push`, confirm the current branch is not `master` or `main` (`git br
 
 | String kind | Module | Resource class | Base folder only |
 |-------------|--------|----------------|------------------|
+| ROut-only (new ROut features, UI, etc.) | `i18n-rout/` | **`ROT`** | `base/`, `in/`, `ko/` (selalu sinkron) |
 | Komikku-only (new features, KMK UI, library-update errors, WebDAV, Discord, etc.) | `i18n-kmk/` | **`KMR`** | `i18n-kmk/src/commonMain/moko-resources/base/` |
 | Shared Mihon / upstream behavior | `i18n/` | **`MR`** | `i18n/src/commonMain/moko-resources/base/` |
 | TachiyomiSY-only | `i18n-sy/` | **`SYMR`** | `i18n-sy/src/commonMain/moko-resources/base/` |
 
 **Hard rules:**
 
+- **Never** add ROut-specific strings to `i18n/`, `i18n-kmk/`, or `i18n-sy/`.
 - **Never** add Komikku-specific strings to `i18n/` or `i18n-sy/`.
 - **Never** edit non-`base` locale `strings.xml` or `plurals.xml` files in `i18n-kmk/`, `i18n/`, or `i18n-sy/` (Weblate owns translations).
-- Import: `import tachiyomi.i18n.kmk.KMR` for Komikku strings.
+- Import: `import tachiyomi.i18n.rout.ROT` for ROut strings, or `import tachiyomi.i18n.kmk.KMR` for Komikku strings.
 - If a change is inside `// KMK -->` … `// KMK <--` or adds Komikku-only behavior, default to **`KMR` + `i18n-kmk`**.
+- If a change is inside `// Rout -->` … `// Rout <-` or adds ROut-only behavior, default to **`ROT` + `i18n-rout`**.
 
 **Self-check before finishing:** `git diff` must not add new `<string name="…">` or `<plurals name="…">` entries under non-`base` locales in `i18n-kmk/src/`, `i18n/src/`, or `i18n-sy/src/`.
+
+---
+
+## Manajemen String & Internasionalisasi (i18n-rout)
+
+🔹 Modul khusus untuk string dan internasionalisasi ROut adalah `i18n-rout/`.
+
+🔹 Gunakan **Resource Class `ROT`** untuk mengakses resource string ROut.
+
+🔹 Import `ROT` menggunakan:
+
+```kotlin
+import tachiyomi.i18n.rout.ROT
+```
+
+🔹 Folder resource utama:
+
+```text
+i18n-rout/src/commonMain/moko-resources/base/
+```
+
+### Lokal yang didukung
+
+🔹 Untuk `i18n-rout`, **ketiga lokal wajib selalu dijaga tetap sinkron secara bersamaan**:
+
+```text
+base/  → English
+in/    → Indonesian
+ko/    → Korean
+```
+
+🔹 Setiap kali menambahkan, mengubah, atau menghapus string ROut, **perubahan tersebut harus diterapkan pada ketiga lokal tersebut**.
+
+🔹 Jangan meninggalkan string baru hanya pada satu atau dua lokal.
+
+🔹 Pastikan setiap resource memiliki pasangan yang sesuai pada:
+
+```text
+i18n-rout/src/commonMain/moko-resources/base/
+i18n-rout/src/commonMain/moko-resources/in/
+i18n-rout/src/commonMain/moko-resources/ko/
+```
+
+### Larangan modul i18n lain
+
+🔹 **Jangan menambahkan string khusus ROut** ke modul berikut:
+
+```text
+i18n/
+i18n-kmk/
+i18n-sy/
+```
+
+🔹 Semua string yang khusus dibuat untuk fitur atau UI ROut **wajib berada di `i18n-rout/`**.
+
+🔹 Modul `i18n/`, `i18n-kmk/`, dan `i18n-sy/` hanya boleh digunakan untuk resource yang memang berasal dari atau menjadi tanggung jawab modul tersebut.
+
+### Aturan penggunaan
+
+🔹 Untuk string ROut di source code, gunakan `ROT` dari `i18n-rout`:
+
+```kotlin
+import tachiyomi.i18n.rout.ROT
+```
+
+🔹 Jangan membuat string ROut hardcoded jika string tersebut seharusnya dapat diterjemahkan.
+
+🔹 Jangan memindahkan string ROut ke modul i18n lain hanya karena resource tersebut sudah memiliki struktur atau file yang serupa.
+
+### Aturan inti
+
+🔹 **ROut strings → `i18n-rout/` → `ROT` → `base/`, `in/`, dan `ko/` selalu sinkron.**
+
+🔹 **Jangan menambahkan string khusus ROut ke `i18n/`, `i18n-kmk/`, atau `i18n-sy/`.**
 
 ### Formatting & build verification
 

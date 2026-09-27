@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://komikku-app.github.io">
+<a href="https://github.com/IfanID/rout">
   <img width=200px height=200px src="./.github/readme-images/app-icon.png"/>
 </a><br/>
 <a href="https://trendshift.io/repositories/13696" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13696" alt="rout | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
@@ -26,7 +26,7 @@
 
 *Requires Android 12.0 or higher.*
 
-[![Sponsor me on GitHub](https://custom-icon-badges.demolab.com/badge/-Sponsor-ea4aaa?style=for-the-badge&logo=heart&logoColor=white)](https://github.com/sponsors/cuong-tran "Sponsor me on GitHub")
+[![Sponsor me on GitHub](https://custom-icon-badges.demolab.com/badge/-Sponsor-ea4aaa?style=for-the-badge&logo=heart&logoColor=white)](https://trakteer.id/ifan_3/tip "Sponsor me on Trakteer")
 
 <div align="left">
 A free and open source manga reader which is based off TachiyomiSY & Mihon/Tachiyomi. This fork is meant to provide new & useful features while regularly take features/updates from Mihon or other forks like SY, J2K and Neko...
@@ -74,6 +74,7 @@ A free and open source manga reader which is based off TachiyomiSY & Mihon/Tachi
 - Always up-to-date with Mihon & SY
 - More app themes & better UI, improvements...
 
+</details>
 
 <details>
   <summary>Features from Mihon / Tachiyomi</summary>
@@ -137,8 +138,6 @@ Additional features for some extensions, features include custom description, op
 
 </details>
 
-</details>
-
 ## Issues, Feature Requests and Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
@@ -189,7 +188,7 @@ See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 Thank you to all the people who have contributed!
 
 <a href="https://github.com/IfanID/rout/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=IfanID/rout" alt="ROut app contributors" title="ROut app contributors" width="800"/>
+    <img src="https://contrib.rocks/image?repo=IfanID/rout" alt="ROut app contributors" title="ROut app contributors" width="120"/>
 </a>
 
 ![Visitor Count](https://count.getloli.com/get/@IfanID-rout?theme=capoo-2)

@@ -115,15 +115,16 @@ android {
 
     packaging {
         jniLibs {
-            keepDebugSymbols += listOf(
-                "libandroidx.graphics.path",
-                "libarchive-jni",
-                "libconscrypt_jni",
-                "libimagedecoder",
-                "libquickjs",
-                "libsqlite3x",
+            keepDebugSymbols.addAll(
+                listOf(
+                    "libandroidx.graphics.path",
+                    "libarchive-jni",
+                    "libconscrypt_jni",
+                    "libimagedecoder",
+                    "libquickjs",
+                    "libsqlite3x",
+                ).map { "**/$it.so" },
             )
-                .map { "**/$it.so" }
         }
         resources {
             excludes += setOf(
@@ -191,6 +192,9 @@ dependencies {
     // SY -->
     implementation(projects.i18nSy)
     // SY <--
+    // Rout --> Added i18n-rout dependency
+    implementation(projects.i18nRout)
+    // Rout <-
     implementation(projects.core.archive)
     implementation(projects.core.common)
     implementation(projects.coreMetadata)

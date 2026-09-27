@@ -55,6 +55,9 @@ include(":flagkit")
 // SY -->
 include(":i18n-sy")
 // SY <--
+// Rout --> Added i18n-rout module
+include(":i18n-rout")
+// Rout <-
 include(":macrobenchmark")
 include(":presentation-core")
 include(":presentation-widget")
