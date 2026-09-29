@@ -58,6 +58,9 @@ import uy.kohesive.injekt.api.fullType
 internal fun AppThemePreferenceWidget(
     value: AppTheme,
     amoled: Boolean,
+    // Rout --> Ditambahkan oleh ROut: dukung parameter isGrid untuk layout grid 4 kolom di onboarding
+    isGrid: Boolean = false,
+    // Rout <-
     onItemClick: (AppTheme) -> Unit,
 ) {
     BasePreferenceWidget(
@@ -65,6 +68,9 @@ internal fun AppThemePreferenceWidget(
             AppThemesList(
                 currentTheme = value,
                 amoled = amoled,
+                // Rout --> Ditambahkan oleh ROut: teruskan parameter isGrid ke AppThemesList
+                isGrid = isGrid,
+                // Rout <-
                 onItemClick = onItemClick,
             )
         },
@@ -75,6 +81,9 @@ internal fun AppThemePreferenceWidget(
 private fun AppThemesList(
     currentTheme: AppTheme,
     amoled: Boolean,
+    // Rout --> Ditambahkan oleh ROut: parameter isGrid untuk menentukan layout grid atau horizontal row
+    isGrid: Boolean,
+    // Rout <-
     onItemClick: (AppTheme) -> Unit,
 ) {
     val context = LocalContext.current
@@ -82,47 +91,110 @@ private fun AppThemesList(
         AppTheme.entries
             .filterNot { it.titleRes == null }
     }
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = PrefsHorizontalPadding),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-    ) {
-        items(
-            items = appThemes,
-            key = { "theme-${it.name}" },
-        ) { appTheme ->
-            Column(
-                modifier = Modifier
-                    .width(114.dp)
-                    .padding(top = 8.dp),
-            ) {
-                TachiyomiTheme(
-                    appTheme = appTheme,
-                    amoled = amoled,
+    // Rout --> Dimodifikasi oleh ROut: tambahkan dukungan layout grid 4 kolom atau horizontal lazy row chunked(2)
+    if (isGrid) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = PrefsHorizontalPadding),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        ) {
+            val chunks = appThemes.chunked(4)
+            chunks.forEach { rowThemes ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
                 ) {
-                    AppThemePreviewItem(
-                        selected = currentTheme == appTheme,
-                        onClick = {
-                            onItemClick(appTheme)
-                            (context as? Activity)?.let { ActivityCompat.recreate(it) }
-                        },
-                    )
+                    rowThemes.forEach { appTheme ->
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(top = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            TachiyomiTheme(
+                                appTheme = appTheme,
+                                amoled = amoled,
+                            ) {
+                                AppThemePreviewItem(
+                                    selected = currentTheme == appTheme,
+                                    onClick = {
+                                        onItemClick(appTheme)
+                                        (context as? Activity)?.let { ActivityCompat.recreate(it) }
+                                    },
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = stringResource(appTheme.titleRes!!),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .secondaryItemAlpha(),
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                minLines = 2,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                    if (rowThemes.size < 4) {
+                        Spacer(modifier = Modifier.weight((4 - rowThemes.size).toFloat()))
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = stringResource(appTheme.titleRes!!),
+            }
+        }
+    } else {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = PrefsHorizontalPadding),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        ) {
+            items(appThemes.chunked(2)) { chunk ->
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .secondaryItemAlpha(),
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    minLines = 2,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                        .width(114.dp)
+                        .padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+                ) {
+                    chunk.forEach { appTheme ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            TachiyomiTheme(
+                                appTheme = appTheme,
+                                amoled = amoled,
+                            ) {
+                                AppThemePreviewItem(
+                                    selected = currentTheme == appTheme,
+                                    onClick = {
+                                        onItemClick(appTheme)
+                                        (context as? Activity)?.let { ActivityCompat.recreate(it) }
+                                    },
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = stringResource(appTheme.titleRes!!),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .secondaryItemAlpha(),
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                minLines = 2,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
+    // Rout <-
 }
 
 @Composable
@@ -265,6 +337,7 @@ private fun AppThemesListPreview() {
             AppThemesList(
                 currentTheme = appTheme,
                 amoled = false,
+                isGrid = false,
                 onItemClick = { appTheme = it },
             )
         }

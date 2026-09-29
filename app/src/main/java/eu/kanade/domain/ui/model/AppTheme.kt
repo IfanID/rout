@@ -5,6 +5,9 @@ import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 
 enum class AppTheme(val titleRes: StringResource?) {
+    // Rout --> Pindahkan TEALTURQUOISE ke posisi paling atas
+    TEALTURQUOISE(MR.strings.theme_tealturquoise),
+    // Rout <-
     DEFAULT(MR.strings.label_default),
     MONET(MR.strings.theme_monet),
 
@@ -22,7 +25,6 @@ enum class AppTheme(val titleRes: StringResource?) {
     NORD(MR.strings.theme_nord),
     STRAWBERRY_DAIQUIRI(MR.strings.theme_strawberrydaiquiri),
     TAKO(MR.strings.theme_tako),
-    TEALTURQUOISE(MR.strings.theme_tealturquoise),
     TIDAL_WAVE(MR.strings.theme_tidalwave),
     YINYANG(MR.strings.theme_yinyang),
     YOTSUBA(MR.strings.theme_yotsuba),

@@ -17,13 +17,16 @@ Rout is an Android manga reader (min SDK 31, target SDK 36, JVM 17 / Kotlin) for
 
 ### Git
 
+> **Mandatory Workflow:** AI executes tasks on a **local working branch** (`/`) and **must create a commit on that working branch** as a safety checkpoint against bugs. AI is **STRICTLY FORBIDDEN from performing `git push` on either the working branch or `main`**. When the user confirms completion/satisfaction, AI moves the changes to `main` (as *uncommitted*) and then **deletes the working branch** to keep the branch list clean. All code changes will accumulate under the **Source Control / Changes** tab on local `main`. AI provides a commit message recommendation in Indonesian. The user manually performs the commit on `main` and `push` to GitHub.
+
 | Rule | Required behavior |
 |------|-------------------|
-| Branch | Create a **feature branch** for the task (`git checkout -b <type>/<short-description>`). |
-| Commit | **OK** on a feature branch when work is ready. **Never** commit directly to `master` / `main` unless the user explicitly asks. **Commit messages must always be written in Bahasa Indonesia**. |
-| Push | **OK** to push the **current feature branch** when work is ready. **Never** push to `master` / `main` unless the user explicitly asks. |
-
-Before `git push`, confirm the current branch is not `master` or `main` (`git branch --show-current`).
+| Branching & Coding | AI creates a **working branch** for the task (`git checkout -b /`) and writes code in it. Types: `feature`, `fix`, `hotfix`, `refactor`, `chore`, `docs`, `perf`, `test`, etc. |
+| Safety Commit (Local Only) | AI **must commit on the working branch** once the feature/fix is completed to serve as a recovery point (*safety checkpoint*). **AI is forbidden from performing `git push` on the working branch.** |
+| Branch Cleanup | When the user confirms the work is satisfactory (e.g., *"looks good"*, *"done"*), AI switches to `main`, uncommits/soft-resets the changes so they land under **Source Control / Changes** on `main`, and **deletes the working branch** (`git branch -D `). |
+| Code Status on Main | All changes from the working branch automatically aggregate in the **Source Control / Changes** tab on the local `main` branch as *uncommitted*. |
+| Commit Message | AI provides a recommended **commit message in Indonesian** that is clear and descriptive of the implemented changes. |
+| AI Constraints (Full Manual User) | **AI is strictly forbidden from committing on main, auto-merging to main, or running `git push` on any branch.** AI's job stops right after deleting the working branch and providing the commit message. User manually types the commit message, clicks **Commit**, and performs **Push**. |
 
 ### Internationalization (strings)
 

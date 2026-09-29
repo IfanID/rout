@@ -37,11 +37,14 @@ internal class ThemeStep : OnboardingStep {
                 },
             )
 
+            // Rout --> Dimodifikasi oleh ROut: aktifkan layout grid 4 kolom untuk pemilihan tema saat onboarding
             AppThemePreferenceWidget(
                 value = appTheme,
                 amoled = amoled,
+                isGrid = true,
                 onItemClick = { appThemePref.set(it) },
             )
+            // Rout <-
         }
     }
 }

@@ -17,10 +17,12 @@ class UiPreferences(
 
     fun themeMode() = preferenceStore.getEnum("pref_theme_mode_key", ThemeMode.SYSTEM)
 
+    // Rout --> Dimodifikasi oleh ROut: set default theme ke AppTheme.TEALTURQUOISE
     fun appTheme() = preferenceStore.getEnum(
         "pref_app_theme",
-        AppTheme.MONET,
+        AppTheme.TEALTURQUOISE,
     )
+    // Rout <-
 
     fun themeDarkAmoled() = preferenceStore.getBoolean("pref_theme_dark_amoled_key", false)
 
