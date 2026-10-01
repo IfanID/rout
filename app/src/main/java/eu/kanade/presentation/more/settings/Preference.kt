@@ -31,9 +31,11 @@ sealed class Preference {
             override val title: String,
             override val subtitle: CharSequence? = null,
             override val enabled: Boolean = true,
+            // Rout --> Ditambahkan oleh ROut: dukung ikon kustom pada TextPreference
+            override val icon: ImageVector? = null,
+            // Rout <-
             val onClick: (() -> Unit)? = null,
         ) : PreferenceItem<String, Unit>() {
-            override val icon: ImageVector? = null
             override val onValueChanged: suspend (value: String) -> Unit = {}
         }
 

@@ -28,14 +28,16 @@ Rout is an Android manga reader (min SDK 31, target SDK 36, JVM 17 / Kotlin) for
 | Commit Message | AI provides a recommended **commit message in Indonesian** that is clear and descriptive of the implemented changes. |
 | AI Constraints (Full Manual User) | **AI is strictly forbidden from committing on main, auto-merging to main, or running `git push` on any branch.** AI's job stops right after deleting the working branch and providing the commit message. User manually types the commit message, clicks **Commit**, and performs **Push**. |
 
-### Internationalization (strings)
+### Internationalization (strings & resource reuse)
 
-| String kind | Module | Resource class | Base folder only |
-|-------------|--------|----------------|------------------|
-| ROut-only (new ROut features, UI, etc.) | `i18n-rout/` | **`ROT`** | `base/`, `in/`, `ko/` (selalu sinkron) |
-| Komikku-only (new features, KMK UI, library-update errors, WebDAV, Discord, etc.) | `i18n-kmk/` | **`KMR`** | `i18n-kmk/src/commonMain/moko-resources/base/` |
-| Shared Mihon / upstream behavior | `i18n/` | **`MR`** | `i18n/src/commonMain/moko-resources/base/` |
-| TachiyomiSY-only | `i18n-sy/` | **`SYMR`** | `i18n-sy/src/commonMain/moko-resources/base/` |
+Reusable strings are distributed across dedicated i18n modules depending on their scope. **Reuse Upstream Resources:** Always check if a suitable string already exists in upstream modules (`MR` in `i18n/`) before creating new ROut-specific strings, to avoid duplication and leverage existing multi-language translations.
+
+| String scope / origin | Module | Resource class | Base folder / Locales |
+|-----------------------|--------|----------------|----------------------|
+| Shared Mihon / upstream behavior | `i18n/` | **`MR`** | `base/` |
+| Komikku-only features & UI | `i18n-kmk/` | **`KMR`** | `base/` |
+| TachiyomiSY-only features & UI | `i18n-sy/` | **`SYMR`** | `base/` |
+| ROut-only features, UI, etc. | `i18n-rout/` | **`ROT`** | `base/`, `in/`, `ko/` (selalu sinkron) |
 
 **Hard rules:**
 
@@ -103,6 +105,7 @@ i18n-sy/
 🔹 All strings created specifically for ROut features or UI **must reside in `i18n-rout/`**.
 
 🔹 The `i18n/`, `i18n-kmk/`, and `i18n-sy/` modules should only be used for resources originating from or belonging to those respective modules.
+
 
 ### Usage Rules
 
